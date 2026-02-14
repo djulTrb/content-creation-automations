@@ -1,0 +1,1703 @@
+{
+  "name": "Part 04 - Concatenate scenes and  add audio effects into final video",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# WORKFLOW IV :  CONCATENATE SCENES AND ADD AUDIO EFFECTS INTO FINAL SHORT VIDEO",
+        "height": 1800,
+        "width": 6800,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1500,
+        -180
+      ],
+      "typeVersion": 1,
+      "id": "f4417278-9736-4da8-b432-a5581709d7a4",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ",
+          "mode": "list",
+          "cachedResultName": "formatted reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 188069496,
+          "mode": "list",
+          "cachedResultName": "sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit#gid=188069496"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "used before",
+              "lookupValue": "no"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1820,
+        780
+      ],
+      "id": "aa75b533-4530-4034-9dd1-ce426003333d",
+      "name": "Get first unused story",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        780
+      ],
+      "id": "1896b906-04ac-4dfa-828d-87422c878ad6",
+      "name": "Generate the final video"
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "=/{{ $json.title.replaceAll(\" \",\"_\") }}.txt"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1940,
+        1100
+      ],
+      "id": "efa65e53-3a31-46eb-b267-11afe092d9f3",
+      "name": "Download temp story data file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        1100
+      ],
+      "id": "2d114fc9-a22f-4301-b2bf-782f3cd648d9",
+      "name": "Extract stored data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = JSON.parse($input.first().json.data)\nreturn output"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2360,
+        920
+      ],
+      "id": "5669cde2-7365-4079-ae2f-6bed0f33dc7f",
+      "name": "Parse temp JSON"
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2600,
+        1100
+      ],
+      "id": "61030ada-bd32-4a8c-866b-295f679d03f1",
+      "name": "Loop over scenes videos"
+    },
+    {
+      "parameters": {
+        "jsCode": "const totalVideos = $input.all().length;\n\nconst getTitle = `${$input.first().json['story number']} - ${$input.first().json.title}`;\n\nconst baseUrl = `http://host.docker.internal:9000/nca-toolkit/${$input.first().json.title.replaceAll(\" \",\"_\")}(story_${$input.first().json.row_number})%2Fstory_parts%2F`;\n\nlet output = \"\";\n\n$input.all().forEach((item, index) => {\n  const videoIndex = item.json.scene_num;\n  const videoUrl = `${baseUrl}video${videoIndex}.mp4`;\n  output += (index === $input.all().length - 1) ? videoUrl : `${videoUrl},`;\n});\n\nreturn [\n  {\n    json: {\n      result: output,\n      title: getTitle,\n      vidsCount: totalVideos\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2820,
+        1000
+      ],
+      "id": "11deb42d-17ee-43ff-866e-beb1783beeda",
+      "name": "Get videos urls"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Array of your video URLs\nconst videoUrls = [\n  ...$input.first().json.result.split(\",\")\n];\n\n// Build inputs and concat filter\nconst inputs = [];\nconst concatLabels = [];\n\nfor (let i = 0; i < videoUrls.length; i++) {\n  inputs.push(`{ \"file_url\": \"${videoUrls[i]}\" }`);\n  concatLabels.push(`[${i}:v][${i}:a]`);\n}\n\nconst filter = concatLabels.join('') + `concat=n=${videoUrls.length}:v=1:a=1[outv][outa]`;\n\nconst payload = `{\n  \"id\": \"concat-n-videos\",\n  \"inputs\": [${inputs}],\n  \"filters\": [{\"filter\":\"${ filter }\"}],\n  \"outputs\": [\n    {\n      \"options\": [\n        { \"option\": \"-map\", \"argument\": \"[outv]\" },\n        { \"option\": \"-map\", \"argument\": \"[outa]\" },\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\n        { \"option\": \"-crf\", \"argument\": \"28\" },\n        { \"option\": \"-preset\", \"argument\": \"ultrafast\" },\n        { \"option\": \"-tune\", \"argument\": \"zerolatency\" },\n        { \"option\": \"-c:a\", \"argument\": \"aac\" },\n        { \"option\": \"-b:a\", \"argument\": \"96k\" }\n      ]\n    }\n  ]\n}`;\n\n// Return the JSON payload for use in the next HTTP node\nreturn [\n  {\n    json: {payload:payload}\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3040,
+        1000
+      ],
+      "id": "5f1ac632-1be8-49df-82c7-4bd85ba92384",
+      "name": "Make an ffmpeg payload"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/ffmpeg/compose",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload }}",
+        "options": {
+          "timeout": 1000000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3260,
+        1000
+      ],
+      "id": "67f5f593-e71e-4c70-975c-a500df3ea3a1",
+      "name": "Concat scenes in batches",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ccb67294-61c8-4ef6-8052-a482c7ef956f",
+              "name": "file_url",
+              "value": "={{ $json.response[0].file_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3480,
+        1000
+      ],
+      "id": "6ebca18d-52a7-4704-8049-100fda769ba4",
+      "name": "Get the batch url"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "urls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        3920,
+        940
+      ],
+      "id": "6bfbaee2-5f8f-4ee9-ab9c-883c60c382c2",
+      "name": "Extract old videos_urls file content"
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "/videos_urls.txt"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        3700,
+        1000
+      ],
+      "id": "91f52d7e-7009-4754-844a-06abd2e59783",
+      "name": "Download the videos_urls file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const urls = $input.first().json.urls;\nconst new_url = $('Get the batch url').first().json.file_url;\n\nreturn {json:{urls: `${urls},${new_url}`}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4140,
+        940
+      ],
+      "id": "975d79fb-334e-4dbf-bcd8-4bb66d289c0e",
+      "name": "Concat new url"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "urls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        4360,
+        940
+      ],
+      "id": "08662064-62a3-4ecb-a16b-c1d89b508926",
+      "name": "Convert new JSON to file"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "=/videos_urls.txt",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4580,
+        1080
+      ],
+      "id": "07bfc6cf-aa9a-48cd-9c4f-42e44f14d3e4",
+      "name": "Upload modified videos_urls file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "/videos_urls.txt"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        2820,
+        760
+      ],
+      "id": "a0f8b257-dabb-4b21-a443-0fcd83712d51",
+      "name": "Download the final videos_urls file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "urls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        760
+      ],
+      "id": "bcf5bbb7-1dcc-44ac-be6d-e6f7485c5722",
+      "name": "Extract required urls for concat"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inp = $input.all()[0]\n\nreturn {input_urls: inp}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3260,
+        760
+      ],
+      "id": "270bf1f2-e1b4-474d-8c4c-ea2982e9e2a3",
+      "name": "Get first batch of urls"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3480,
+        340
+      ],
+      "id": "a86dacb0-739c-4e3d-ac34-f0146777396a",
+      "name": "Wait and combine all data"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "file_url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        3920,
+        1140
+      ],
+      "id": "9b6d2a7c-75e5-4b6e-bf0d-d5840f1986a8",
+      "name": "Convert the new videos_urls file"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "=/videos_urls.txt",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4140,
+        1140
+      ],
+      "id": "67a414ec-fc49-48a3-97e8-ce4361cf7901",
+      "name": "Upload the new videos urls file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/ffmpeg/compose",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload }}",
+        "options": {
+          "timeout": 1000000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4300,
+        500
+      ],
+      "id": "356ab09e-535e-4ba0-bb57-06be9667a100",
+      "name": "Concat the final video",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "bucketName": "nca-toolkit",
+        "returnAll": true,
+        "options": {
+          "folderKey": "=SFX/"
+        }
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4760,
+        540
+      ],
+      "id": "800459bf-7f78-4e9d-9966-ee893afb791e",
+      "name": "Get sfx files",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let rand_sfx = Math.floor(Math.random()*$input.all().length) + 1\n\nreturn {json:{files_array: $input.all().length, sfx_to_use:`SFX/${rand_sfx}.mp3`}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4980,
+        540
+      ],
+      "id": "fba903bd-acb5-4bdd-90af-7822936d006e",
+      "name": "Get random SFX path"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b7f90d7-3155-41da-8fe5-8542db000fad",
+              "leftValue": "={{$json.files_array}}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5200,
+        540
+      ],
+      "id": "b1dea2f3-c776-4097-a7d4-df5f393201e6",
+      "name": "check if there are audio files in SFX folder"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/ffmpeg/compose",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": [\n    {\n      \"file_url\": \"http://host.docker.internal:9000/nca-toolkit/final_result/{{ $json.title }} (without sound).mp4\"\n    },\n    {\n      \"file_url\": \"http://host.docker.internal:9000/nca-toolkit/{{ $json.sfx_to_use }}\"\n    }\n  ],\n  \"filters\": [\n    {\n      \"filter\": \"[1:a]aloop=loop=-1:size=2e+09[a2looped];[a2looped]volume=0.2[a2vol];[0:a][a2vol]amix=inputs=2:duration=first[outa]\"\n    }\n  ],\n  \"outputs\": [\n    {\n      \"options\": [\n        {\n          \"option\": \"-map\",\n          \"argument\": \"0:v\"\n        },\n        {\n          \"option\": \"-map\",\n          \"argument\": \"[outa]\"\n        },\n        {\n          \"option\": \"-c:v\",\n          \"argument\": \"copy\"\n        },\n        {\n          \"option\": \"-c:a\",\n          \"argument\": \"aac\"\n        }\n      ]\n    }\n  ],\n  \"id\": \"audio-layering\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5640,
+        540
+      ],
+      "id": "903eb6a5-0079-4b11-8406-672e2900b6fe",
+      "name": "Mix the SFX and the final video",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      },
+      "notes": "/v1/ffmpeg/compose"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "sourcePath": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000\",\"\") }}",
+        "destinationPath": "=/nca-toolkit/final_result/{{ $('Get videos urls and other data').item.json.title }} (without sound).mp4",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4980,
+        260
+      ],
+      "id": "9f495837-e7f1-48c2-a0c7-417cb0304fe2",
+      "name": "Upload the video without SFX",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5860,
+        440
+      ],
+      "id": "c50502d3-6c6f-40a7-822a-0182f3611c4e",
+      "name": "Download the temp video with SFX",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "=/final_result/{{ $('Get videos urls and other data').item.json.title }} (with sound).mp4",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        6080,
+        540
+      ],
+      "id": "c03d17d1-9e91-465e-aaa4-bcfb0623d0ca",
+      "name": "Upload the final video with SFX",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5860,
+        760
+      ],
+      "id": "bf6053cd-2346-4853-bf5f-520aa9a3e37e",
+      "name": "Delete the temp video with SFX",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4980,
+        760
+      ],
+      "id": "f447050e-9043-424a-a307-6a452173acb1",
+      "name": "Delete the temp video without SFX",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6080,
+        740
+      ],
+      "id": "79ee471a-0fe2-43a7-857b-13aec452b802",
+      "name": "Wait for all process to finish"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6300,
+        640
+      ],
+      "id": "ee0ef837-a754-47b8-ae85-ddca579e7f7c",
+      "name": "Get required data"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json:{\n  title: $input.first().json.title,\n  Story_Num: $input.first().json.row_number\n}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5800,
+        1460
+      ],
+      "id": "38640ba8-531d-406f-b8ba-0648e05341f8",
+      "name": "Get required data in a JSON"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6460,
+        880
+      ],
+      "id": "8b2ebc1b-1f8e-42ce-a1a0-279b05a573b3",
+      "name": "Wait for nodes"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6860,
+        -80
+      ],
+      "id": "99181d1e-c539-4078-ad17-22308c9187b2",
+      "name": "Wait and merge data"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "folderKey": "={{ $json.title.replaceAll(\" \",\"_\") }}(story_{{ $json.Story_Num }})"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        6660,
+        120
+      ],
+      "id": "28576a39-5bd5-4bfe-9399-a7b674392ad1",
+      "name": "Cleanup the story folder (from workflow 3)",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ",
+          "mode": "list",
+          "cachedResultName": "formatted reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 188069496,
+          "mode": "list",
+          "cachedResultName": "sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit#gid=188069496"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "used before": "yes",
+            "id_story": "={{ $json.id_story }}"
+          },
+          "matchingColumns": [
+            "id_story"
+          ],
+          "schema": [
+            {
+              "id": "id_story",
+              "displayName": "id_story",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "subreddit",
+              "displayName": "subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "used before",
+              "displayName": "used before",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "published",
+              "displayName": "published",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "genre",
+              "displayName": "genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        7060,
+        -100
+      ],
+      "id": "6c324a28-3e10-480f-b990-2b468169c928",
+      "name": "Update \"used before\" column to \"yes\"",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "/videos_urls.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        7480,
+        -100
+      ],
+      "id": "8bae594b-9a39-456e-93f5-b5f110016c82",
+      "name": "Delete the temp videos_urls file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "/story_data.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        7260,
+        -100
+      ],
+      "id": "d560f2f7-2f8b-4315-b7a9-375c1fa59e2b",
+      "name": "Delete the temp story_data file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        7800,
+        680
+      ],
+      "id": "90fdef26-54c4-4943-a311-a46985d54046",
+      "name": "Merge for final node"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "=/{{ $json.title.replaceAll(\" \",\"_\") }}.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        8020,
+        680
+      ],
+      "id": "b13e1038-243b-45b3-9dc6-bcbdb8c2e831",
+      "name": "Remove the temp concat file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {json:{url : $input.first().json.result.split(\",\")}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4580,
+        -40
+      ],
+      "id": "3ab0c63b-d7aa-43de-926d-f0d7c8f6456c",
+      "name": "Get the temp videos urls"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4800,
+        -20
+      ],
+      "id": "a6e4a709-cd4f-4d67-af01-e5ccd04e70b1",
+      "name": "Wait for concat to finish"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5020,
+        -20
+      ],
+      "id": "af2be98f-9f48-4f83-be5b-bb45df6dcf68",
+      "name": "Split out the urls"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        5240,
+        -20
+      ],
+      "id": "31042483-d2a4-47dc-b98b-9697b57b93d7",
+      "name": "Loop over temp videos"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {url: $input.first()}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5460,
+        -40
+      ],
+      "id": "54839685-fa52-4483-831f-cc522544e16c",
+      "name": "Get a url each one at a time"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.url.json.url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5680,
+        -20
+      ],
+      "id": "47887418-b2cd-4926-b88a-eb066e36f2c8",
+      "name": "Delete a temp video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const totalVideos = $input.all().length;\n\nconst getTitle = `${$input.first().json.row_number} -  ${$input.first().json.title}`;\n\nlet output = $input.first().json.input_urls.json.urls;\n\nreturn [\n  {\n    json: {\n      result: output,\n      title:getTitle,\n      vidsCount:totalVideos\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3700,
+        340
+      ],
+      "id": "fb401eef-5ee7-4228-85c5-e9799cd4a7d3",
+      "name": "Get videos urls and other data"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        5420,
+        540
+      ],
+      "id": "db09d215-5db9-457a-8e10-275f2180d5cd",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Array of your video URLs\nconst videoUrls = [\n  ...$input.first().json.result.split(\",\")\n];\n\n// Build inputs and concat filter\nconst inputs = [];\nconst concatLabels = [];\n\nfor (let i = 0; i < videoUrls.length; i++) {\n  inputs.push(`{ \"file_url\": \"${videoUrls[i]}\" }`);\n  concatLabels.push(`[${i}:v][${i}:a]`);\n}\n\nconst filter = concatLabels.join('') + `concat=n=${videoUrls.length}:v=1:a=1[outv][outa]`;\n\nconst payload = `{\n  \"id\": \"concat-n-videos\",\n  \"inputs\": [${inputs}],\n  \"filters\": [{\"filter\":\"${ filter }\"}],\n  \"outputs\": [\n    {\n      \"options\": [\n      { \"option\": \"-map\", \"argument\": \"[outv]\" },\n      { \"option\": \"-map\", \"argument\": \"[outa]\" },\n      { \"option\": \"-c:v\", \"argument\": \"libx264\" },\n      { \"option\": \"-crf\", \"argument\": \"23\" },\n      { \"option\": \"-preset\", \"argument\": \"veryfast\" },\n      { \"option\": \"-tune\", \"argument\": \"zerolatency\" },\n      { \"option\": \"-c:a\", \"argument\": \"aac\" },\n      { \"option\": \"-b:a\", \"argument\": \"128k\" }\n      ]\n    }\n  ]\n}`;\n\n// Return the JSON payload for use in the next HTTP node\nreturn [\n  {\n    json: {payload:payload}\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4060,
+        460
+      ],
+      "id": "c7603c50-59ce-42f2-9751-076d950eddb1",
+      "name": "Generate an Ffmpeg payload"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get first unused story": {
+      "main": [
+        [
+          {
+            "node": "Download temp story data file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait and merge data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate the final video": {
+      "main": [
+        [
+          {
+            "node": "Get first unused story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download temp story data file": {
+      "main": [
+        [
+          {
+            "node": "Extract stored data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract stored data": {
+      "main": [
+        [
+          {
+            "node": "Parse temp JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse temp JSON": {
+      "main": [
+        [
+          {
+            "node": "Wait and combine all data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop over scenes videos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get required data in a JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over scenes videos": {
+      "main": [
+        [
+          {
+            "node": "Download the final videos_urls file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get videos urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get videos urls": {
+      "main": [
+        [
+          {
+            "node": "Make an ffmpeg payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make an ffmpeg payload": {
+      "main": [
+        [
+          {
+            "node": "Concat scenes in batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concat scenes in batches": {
+      "main": [
+        [
+          {
+            "node": "Get the batch url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the batch url": {
+      "main": [
+        [
+          {
+            "node": "Download the videos_urls file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract old videos_urls file content": {
+      "main": [
+        [
+          {
+            "node": "Concat new url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the videos_urls file": {
+      "main": [
+        [
+          {
+            "node": "Extract old videos_urls file content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert the new videos_urls file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concat new url": {
+      "main": [
+        [
+          {
+            "node": "Convert new JSON to file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert new JSON to file": {
+      "main": [
+        [
+          {
+            "node": "Upload modified videos_urls file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload modified videos_urls file": {
+      "main": [
+        [
+          {
+            "node": "Loop over scenes videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the final videos_urls file": {
+      "main": [
+        [
+          {
+            "node": "Extract required urls for concat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract required urls for concat": {
+      "main": [
+        [
+          {
+            "node": "Get first batch of urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get first batch of urls": {
+      "main": [
+        [
+          {
+            "node": "Wait and combine all data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait and combine all data": {
+      "main": [
+        [
+          {
+            "node": "Get videos urls and other data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert the new videos_urls file": {
+      "main": [
+        [
+          {
+            "node": "Upload the new videos urls file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload the new videos urls file": {
+      "main": [
+        [
+          {
+            "node": "Loop over scenes videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concat the final video": {
+      "main": [
+        [
+          {
+            "node": "Delete the temp video without SFX",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait for concat to finish",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Get sfx files",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload the video without SFX",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get sfx files": {
+      "main": [
+        [
+          {
+            "node": "Get random SFX path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get random SFX path": {
+      "main": [
+        [
+          {
+            "node": "check if there are audio files in SFX folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check if there are audio files in SFX folder": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Wait for nodes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Mix the SFX and the final video": {
+      "main": [
+        [
+          {
+            "node": "Delete the temp video with SFX",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download the temp video with SFX",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload the video without SFX": {
+      "main": [
+        []
+      ]
+    },
+    "Download the temp video with SFX": {
+      "main": [
+        [
+          {
+            "node": "Upload the final video with SFX",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload the final video with SFX": {
+      "main": [
+        [
+          {
+            "node": "Get required data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete the temp video with SFX": {
+      "main": [
+        [
+          {
+            "node": "Wait for all process to finish",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Delete the temp video without SFX": {
+      "main": [
+        [
+          {
+            "node": "Wait for all process to finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for all process to finish": {
+      "main": [
+        [
+          {
+            "node": "Get required data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get required data": {
+      "main": [
+        [
+          {
+            "node": "Wait for nodes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get required data in a JSON": {
+      "main": [
+        [
+          {
+            "node": "Wait for nodes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for nodes": {
+      "main": [
+        [
+          {
+            "node": "Merge for final node",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Cleanup the story folder (from workflow 3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait and merge data": {
+      "main": [
+        [
+          {
+            "node": "Update \"used before\" column to \"yes\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanup the story folder (from workflow 3)": {
+      "main": [
+        [
+          {
+            "node": "Wait and merge data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Update \"used before\" column to \"yes\"": {
+      "main": [
+        [
+          {
+            "node": "Delete the temp story_data file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete the temp videos_urls file": {
+      "main": [
+        [
+          {
+            "node": "Merge for final node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete the temp story_data file": {
+      "main": [
+        [
+          {
+            "node": "Delete the temp videos_urls file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge for final node": {
+      "main": [
+        [
+          {
+            "node": "Remove the temp concat file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the temp videos urls": {
+      "main": [
+        [
+          {
+            "node": "Wait for concat to finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for concat to finish": {
+      "main": [
+        [
+          {
+            "node": "Split out the urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split out the urls": {
+      "main": [
+        [
+          {
+            "node": "Loop over temp videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over temp videos": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get a url each one at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a url each one at a time": {
+      "main": [
+        [
+          {
+            "node": "Delete a temp video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a temp video": {
+      "main": [
+        [
+          {
+            "node": "Loop over temp videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get videos urls and other data": {
+      "main": [
+        [
+          {
+            "node": "Generate an Ffmpeg payload",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get the temp videos urls",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Mix the SFX and the final video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an Ffmpeg payload": {
+      "main": [
+        [
+          {
+            "node": "Concat the final video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "50ee6644-9abe-4730-963c-7a51ed10e42e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa02f91765655e9392e3b75ce8731df7653a09e5799bd530306e1a97fbd5936c"
+  },
+  "id": "a2aMk6CM8UQoTCaz",
+  "tags": []
+}

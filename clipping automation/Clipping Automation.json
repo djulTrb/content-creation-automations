@@ -1,0 +1,1293 @@
+{
+  "name": "Clipping Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/video/caption",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"video_url\": \"{{ $json.response[0].file_url }}\",\n  \"replace\": [\n    { \"find\": \".\", \"replace\": \"\" },\n    { \"find\": \",\", \"replace\": \"\" }\n  ],\n  \"settings\": {\n    \"line_color\": \"#FFFFFF\",\n    \"word_color\": \"#00FF00\",\n    \"all_caps\": false,\n    \"max_words_per_line\": 4,\n    \"font_size\": 70,\n    \"bold\": true,\n    \"italic\": false,\n    \"underline\": false,\n    \"strikeout\": false,\n    \"outline_width\": 3,\n    \"shadow_offset\": 4,\n    \"style\": \"highlight\",\n    \"font_family\": \"The Bold Font\",\n    \"position\": \"bottom_center\"\n  },\n  \"id\": \"gdrive-five\"\n}",
+        "options": {
+          "timeout": 1000000000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        96,
+        -176
+      ],
+      "id": "071902a8-8bff-47f0-a727-e1bf71dc733b",
+      "name": "Caption the video",
+      "notesInFlow": true,
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      },
+      "notes": "/v1/video/caption"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        96,
+        32
+      ],
+      "id": "cf4d0697-a699-487b-8a6b-392d9bb4dfd2",
+      "name": "Delete temp Altered video resolutions",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendVideo",
+        "chatId": "$YOUR_TELEGRAM_CHAT_ID",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "=Video ID \"{{ $('Split Out').item.json.video_index }}\" ⬆"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        -192
+      ],
+      "id": "836049cd-d50d-4089-b84b-ab9b7ab7875d",
+      "name": "Send A Short Video",
+      "webhookId": "8919754c-1185-45ec-8717-571b35608a9b",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -288
+      ],
+      "id": "cdf424e3-589b-405b-9d3e-3995f8f1b5ec",
+      "name": "Download Final Short Video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -96
+      ],
+      "id": "1319ab16-a0ae-492b-8354-0a8b41d7f008",
+      "name": "Delete Temp Captioned Video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replaceAll(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        112
+      ],
+      "id": "96fac40f-eccc-402e-a7dd-9e392598cbc8",
+      "name": "Delete The Initial Cut Video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/ffmpeg/compose",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"id\": \"upscale-to-1080x1920\",\n  \"inputs\": [\n    {\n      \"file_url\": \"{{ $json.response[0].file_url }}\",\n      \"options\": [\n        { \"option\": \"-ss\", \"argument\": \"0\" }\n      ]\n    }\n  ],\n  \"filters\": [\n    {\n      \"filter\": \"[0:v]scale=-1:1280,crop=720:1280:(in_w-out_w)/2:(in_h-out_h)/2,fps=30,setpts=PTS-STARTPTS[v];[0:a]aresample=async=1,asetpts=PTS-STARTPTS[a]\"\n    }\n  ],\n  \"outputs\": [\n    {\n      \"options\": [\n        { \"option\": \"-map\", \"argument\": \"[v]\" },\n        { \"option\": \"-map\", \"argument\": \"[a]\" },\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\n        { \"option\": \"-r\", \"argument\": \"30\" },\n        { \"option\": \"-vsync\", \"argument\": \"cfr\" },\n        { \"option\": \"-crf\", \"argument\": 22 },\n        { \"option\": \"-preset\", \"argument\": \"faster\" },\n        { \"option\": \"-c:a\", \"argument\": \"aac\" },\n        { \"option\": \"-b:a\", \"argument\": \"128k\" }\n      ]\n    }\n  ]\n} ",
+        "options": {
+          "timeout": 600000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -144,
+        -96
+      ],
+      "id": "55629ceb-0e0e-42be-86f3-317088bcc5e9",
+      "name": "Change video Resolution",
+      "retryOnFail": false,
+      "executeOnce": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/video/split",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"video_url\": \"{{ $json.video_url }}\",\n  \"splits\": [\n    {\n  \"start\": \"{{ $json.timestamps.start }}\",\n  \"end\": \"{{ $json.timestamps.end }}\"\n}\n  ],\n  \"video_codec\": \"copy\",\n  \"audio_codec\": \"copy\",\n  \"id\": \"unique-request-id\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -368,
+        0
+      ],
+      "id": "5a74cbf9-d648-4fae-9917-2658eec93eda",
+      "name": "Get A Segment From The Video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst inp = $input.first().json.output;\n\nconst video_url= $('Split A Segment From OG Video').first().json.response[0].file_url;\n\nconst outp = inp.segments.map((seg,video_index)=>{return {...seg,video_url,                                             video_index: ($('Loop Over Timing').first().json.id * 3) + video_index + 1}\n});\n\nconst total_segments = $input.first().json.output.total_segments;\n\nreturn {output: {total_segments:total_segments, segments: outp}} "
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        32
+      ],
+      "id": "ca2433c2-758f-4076-a92f-0cbdf67fe013",
+      "name": "Format The Segments JSON"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"total_segments\": 8,\n  \"segments\": [\n    {\n      \"title\": \"Catchy title for this segment\",\n      \"viral_score\": 9, \n      \"timestamps\": {\n        \"start\": \"00:00:00.000\",\n        \"end\": \"00:00:00.000\"\n      },\n      \"suggested_caption\": \"Engaging caption for the YouTube Short\",\n      \"hashtags\": [\"#hashtag1\", \"#hashtag2\", \"#hashtag3\"]\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1216,
+        240
+      ],
+      "id": "70deff2b-46bf-46df-86eb-d2bf8540b3d7",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3-flash-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        240
+      ],
+      "id": "35971a20-9bc2-4c4e-ad25-47be7c460b65",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NWChq5dUaX00D8C9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You will receive a transcription and a JSON list of phrase timestamps.  \nUse both to identify 1–5 short viral moments following the system rules above, and return only the JSON response.\n\nTranscription:\n\"\"\"\n{{ $json.txt }}\n\"\"\"\n\ntimestamps JSON:\n{{ JSON.stringify($json.segments) }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert short-form video editor and viral content strategist.  \nYour goal is to analyze a podcast or long-form video transcription and, using provided phrase timestamps, identify 1 to 5 viral-ready segments that would make engaging short-form clips for TikTok, YouTube Shorts, or Instagram Reels.\n\n**Guidelines**\n\n**Input Description:**  \nYou will receive two inputs:\n\n- A full transcription of the video or podcast.\n- A JSON list of timestamps, each entry marking where a spoken phrase begins and ends, based on detected silence moments. \n\n\n**Your Task**\n\n- Analyze both the transcription and the phrase-level timestamps.\n- Identify the strongest viral moments in the content.\n- Each selected segment must be between 40 seconds and 2 minutes long.\n- Segment boundaries must be chosen using the provided timestamps.\n- Segments **must not start in the middle of a thought or mid-sentence**. Select segment start and end points that preserve full meaning and provide enough context for the viewer to immediately understand what is happening.\n- Segments must not be fully contained within others, although small overlaps of a few seconds are acceptable.\n- Choose 1 to 5 segments depending on the strength and density of viral content within the transcription.\n\n**Scoring & Output Rules**\n\n- `viral_score` must be a float between 6.0 and 10.0 (e.g., 8.3, 9.1). \n- Titles should be natural, engaging, and suitable for short-form clip headlines.\n- Captions must include relevant hashtags and be optimized for engagement.\n- Output only valid JSON, following exactly this structure:\n\n{\n  \"total_segments\": <number>,\n  \"segments\": [\n    {\n      \"title\": \"Catchy title for this segment\",\n      \"viral_score\": <float 6–10>,\n      \"timestamps\": {\n        \"start\": \"00:00:00.000\",\n        \"end\": \"00:00:00.000\"\n      },\n      \"suggested_caption\": \"Engaging caption with relevant hashtags\",\n      \"hashtags\": [\"#hashtag1\", \"#hashtag2\", \"#hashtag3\"]\n    }\n  ]\n}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -1360,
+        32
+      ],
+      "id": "5bc0972e-c495-478a-a702-4a548149d182",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const txt = $input.first().json.text;\nconst segments = $input.first().json.segments;\n\nreturn [\n  {\n    txt,\n    segments: segments.map(seg => ({\n      segID: seg.id,\n      text: seg.text,\n      start: seg.start,\n      end: seg.end\n    }))\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1568,
+        32
+      ],
+      "id": "1b7aca18-5ad5-4488-8f86-12282547c4fc",
+      "name": "Get Needed Timestamps"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer $YOUR_GROK_KEY_HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "whisper-large-v3"
+            },
+            {
+              "name": "temperature",
+              "value": "0"
+            },
+            {
+              "name": "response_format",
+              "value": "verbose_json"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1792,
+        32
+      ],
+      "id": "473f52a1-6667-4f37-bdf6-0101f784aaa5",
+      "name": "Transcribe The Audio"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/media/transform/mp3",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"media_url\": \"{{ $json.response[0].file_url }}\",\n  \"id\": \"five\"\n}",
+        "options": {
+          "timeout": 50000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2240,
+        32
+      ],
+      "id": "5923b2fe-b1d5-4262-975c-860643e0ec0c",
+      "name": "Convert To MP3",
+      "notesInFlow": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      },
+      "notes": "/v1/media/convert/mp3"
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response.replaceAll(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -2016,
+        32
+      ],
+      "id": "3ebf9dff-5233-427f-88e6-0359b86f0c83",
+      "name": "Get The Audio For Transcription",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{$json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -2464,
+        32
+      ],
+      "id": "c806510c-98cf-49a6-b4c0-3a44320983f7",
+      "name": "Get The Video To Convert",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/video/split",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"video_url\": \"{{ $('Get Needed Metadata').item.json.media_url.trim() }}\",\n    \"id\": \"123\",\n  \"splits\": [\n    {\n      \"start\": \"{{ $json.start }}\",\n      \"end\": \"{{ $json.end }}\"\n    }\n  ],\n  \"video_codec\": \"copy\",\n  \"audio_codec\": \"copy\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2688,
+        32
+      ],
+      "id": "5a303da1-9db9-4e61-a564-35d27af80316",
+      "name": "Split A Segment From OG Video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const durationSec = $input.first().json.Duration;\nconst chunkSize = 7 * 60;  // 7 minutes per chunk\nconst overlap = 2 * 60;    // 2 minutes overlap\n\n\nfunction toTimestamp(seconds) {\n  const h = Math.floor(seconds / 3600);\n  const m = Math.floor((seconds % 3600) / 60);\n  const s = Math.floor(seconds % 60);\n  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.000`;\n}\n\nconst timestamps = [];\nlet start = 0;\nlet id = 0;\n\nwhile (start < durationSec) {\n  let end = start + chunkSize;\n\n  if (end > durationSec) end = durationSec;\n\n  timestamps.push({\n    id: id,\n    start: toTimestamp(start),\n    end: toTimestamp(end)\n  });\n  \n  id++;\n  start += chunkSize - overlap;\n}\n\nreturn [{ json: { timestamps } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3344,
+        32
+      ],
+      "id": "f8e1ffff-a530-40df-af34-a2f5e859ee4c",
+      "name": "Convert To the Right Time Format"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "timestamps",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -3120,
+        32
+      ],
+      "id": "6f4c10fc-a56c-4918-a32e-773b4260b94b",
+      "name": "Split Out Timing"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2896,
+        32
+      ],
+      "id": "7a28779a-673c-4319-8614-af27feac0cc2",
+      "name": "Loop Over Timing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18d6337d-f7b8-4523-9523-3b5a916dc0f0",
+              "name": "Title",
+              "value": "={{ $('Request Job Status').item.json.response.response.response.media.title }}",
+              "type": "string"
+            },
+            {
+              "id": "7d11b150-21fa-4c4c-b790-425282f4a35a",
+              "name": "Duration",
+              "value": "={{ $('Request Job Status').item.json.response.response.response.media.duration }}",
+              "type": "string"
+            },
+            {
+              "id": "cff6afd5-5307-4e37-bb33-90720292301e",
+              "name": "media_url",
+              "value": "={{ $('Request Job Status').item.json.response.response.response.media.media_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3536,
+        32
+      ],
+      "id": "2a0c76d7-1524-483d-8e32-4d0db8703ca3",
+      "name": "Get Needed Metadata"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8f0ebc59-384e-4c6e-a321-fba8b20d49ed",
+              "name": "job_id",
+              "value": "={{ $('Download A Video').item.json.job_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3568,
+        256
+      ],
+      "id": "7b5f8c5c-84d2-4a1c-a9e7-af12a87fa92f",
+      "name": "Get job_id"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ac45d2e4-9b85-4739-b1f5-5bd2b072af27",
+              "leftValue": "={{ $json.job_status }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3760,
+        80
+      ],
+      "id": "de69b397-0f41-4df6-88b4-a62e1bfe9402",
+      "name": "Check If Video Is Done Downloading"
+    },
+    {
+      "parameters": {
+        "jsCode": "let inp = $input.first().json.response.job_status;\n\nconst job = typeof $input.first().json.response === 'string'\n  ? JSON.parse(inp)\n  : $input.first().json.response;\n\nreturn { job_status: job.job_status || null };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4000,
+        80
+      ],
+      "id": "6b701446-e636-4377-b608-a14fd745dcab",
+      "name": "Get Job status"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/toolkit/job/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "job_id",
+              "value": "={{ $json.job_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4224,
+        80
+      ],
+      "id": "fc883706-8b5e-4987-be23-e5fb71cf93f7",
+      "name": "Request Job Status",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 60
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -4448,
+        144
+      ],
+      "id": "ded68998-bbd5-4f58-9265-896499a26b87",
+      "name": "Wait For Video To Download",
+      "webhookId": "4e574599-28bb-4ef6-b9d8-f81eba9468c4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/BETA/media/download",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"media_url\":\"{{ $json.message.text.trim() }}\",\n    \"id\": \"123\",\n    \"webhook_url\": \"$YOUR_WEBHOOK_URL_HERE\",\n    \"cloud_upload\": true,\n    \"format\": {\n    \"quality\": \"bestvideo+bestaudio/best\"\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4656,
+        144
+      ],
+      "id": "92b4f525-9e31-4901-a311-1e529634e452",
+      "name": "Download A Video",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "*"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -4880,
+        144
+      ],
+      "id": "cb23667d-bc64-4775-afe2-9816f8f5f5ed",
+      "name": "Get The Video URL",
+      "webhookId": "8a224666-13a3-4556-b471-25dfcd200363",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# DOWNLOAD THE VIDEO",
+        "height": 700,
+        "width": 1540,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4944,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "e6cfd2b5-d78e-42b8-927d-6be09dd8f440",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Split Orignal Video To Segments Then Spot Viral Moments",
+        "height": 700,
+        "width": 2900,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3376,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "9d3e28e2-41dd-4b97-85ff-bdc69111a0ff",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Cut, Process & Caption Clips Then Send Them Via Telegram",
+        "height": 1040,
+        "width": 1360,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -512
+      ],
+      "typeVersion": 1,
+      "id": "d17e34b4-224c-4f0b-972f-e12aeed460ee",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Add Your Grok Key Here (Free)",
+        "height": 392,
+        "width": 232
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1856,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "3e069ecb-6daa-4c11-905f-5acc2b86a65c",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "# Add Your Webhook URL Here",
+        "height": 440,
+        "width": 264
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4736,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "f8c33653-e27e-4326-a846-dfbf54e542e2",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response.replaceAll(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -2016,
+        224
+      ],
+      "id": "8197ef02-9c14-4e3d-bac3-05c8f1e85d27",
+      "name": "delete mp3",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $('Get Needed Metadata').first().json.media_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -2688,
+        224
+      ],
+      "id": "e146ef1d-46e4-4cae-a0cd-f71727852e06",
+      "name": "Delete initial Video",
+      "executeOnce": true,
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -800,
+        128
+      ],
+      "id": "e463cdab-ea71-4b62-b9d9-5d2cf617bb59",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.segments",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        128
+      ],
+      "id": "cbfbe9e4-8984-4dc0-9866-b6f2bd7cf3cb",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.video_url.replaceAll(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        288
+      ],
+      "id": "f698cf24-fd7c-41eb-bd49-22f5c9cc38a4",
+      "name": "Delete The Cut Video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {video_url: $input.all()[0].json.video_url}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        288
+      ],
+      "id": "b14af9b5-2789-4e6c-a38f-f6500936ae7f",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "chatId": "$YOUR_TELEGRAM_CHAT_ID",
+        "text": "=Video ID {{ $('Split Out').item.json.video_index }} ⬇\n\nTitle: \n{{ $('Split Out').item.json.title }}\n\nViral Score: \n{{ $('Split Out').item.json.viral_score }}\n\nDescription: \n{{ $('Split Out').item.json.suggested_caption }}\n\nTags: \n{{ $('Split Out').item.json.hashtags }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        -384
+      ],
+      "id": "0cd71c60-d162-46f6-83d5-94ad0f5e69a8",
+      "name": "Send Metadata",
+      "webhookId": "a48c361e-94e6-4666-81b6-30298519a181",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Add Your Telegram Chat ID Here\n",
+        "height": 576,
+        "width": 272
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        -592
+      ],
+      "typeVersion": 1,
+      "id": "da12052c-61e3-4a61-97b7-0d5eb0c2d57b",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "# ⚠ ATTENTION :\n\n\n### Your Need To Fill The Missing Key, ID, Webhook Before Running This Automation",
+        "height": 176,
+        "width": 496
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5472,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "90fbbfbd-237c-4591-86f6-a17c57d3aab5",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Caption the video": {
+      "main": [
+        [
+          {
+            "node": "Delete Temp Captioned Video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download Final Short Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Final Short Video": {
+      "main": [
+        [
+          {
+            "node": "Send Metadata",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send A Short Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete The Initial Cut Video": {
+      "main": [
+        []
+      ]
+    },
+    "Change video Resolution": {
+      "main": [
+        [
+          {
+            "node": "Delete temp Altered video resolutions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Caption the video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get A Segment From The Video": {
+      "main": [
+        [
+          {
+            "node": "Delete The Initial Cut Video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Change video Resolution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format The Segments JSON": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Format The Segments JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Needed Timestamps": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe The Audio": {
+      "main": [
+        [
+          {
+            "node": "Get Needed Timestamps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert To MP3": {
+      "main": [
+        [
+          {
+            "node": "Get The Audio For Transcription",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "delete mp3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get The Audio For Transcription": {
+      "main": [
+        [
+          {
+            "node": "Transcribe The Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get The Video To Convert": {
+      "main": [
+        [
+          {
+            "node": "Convert To MP3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split A Segment From OG Video": {
+      "main": [
+        [
+          {
+            "node": "Get The Video To Convert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert To the Right Time Format": {
+      "main": [
+        [
+          {
+            "node": "Split Out Timing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Timing": {
+      "main": [
+        []
+      ]
+    },
+    "Loop Over Timing": {
+      "main": [
+        [
+          {
+            "node": "Delete initial Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split A Segment From OG Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Needed Metadata": {
+      "main": [
+        [
+          {
+            "node": "Convert To the Right Time Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get job_id": {
+      "main": [
+        [
+          {
+            "node": "Wait For Video To Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Video Is Done Downloading": {
+      "main": [
+        [
+          {
+            "node": "Get Needed Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get job_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job status": {
+      "main": [
+        [
+          {
+            "node": "Check If Video Is Done Downloading",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Job Status": {
+      "main": [
+        [
+          {
+            "node": "Get Job status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Video To Download": {
+      "main": [
+        [
+          {
+            "node": "Request Job Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download A Video": {
+      "main": [
+        [
+          {
+            "node": "Wait For Video To Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get The Video URL": {
+      "main": [
+        [
+          {
+            "node": "Download A Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "delete mp3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get A Segment From The Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete The Cut Video": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Timing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Delete The Cut Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9abd88e9-ad84-4329-a70e-48ba879cd3c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa02f91765655e9392e3b75ce8731df7653a09e5799bd530306e1a97fbd5936c"
+  },
+  "id": "cyKON2u181lEM7TP",
+  "tags": []
+}

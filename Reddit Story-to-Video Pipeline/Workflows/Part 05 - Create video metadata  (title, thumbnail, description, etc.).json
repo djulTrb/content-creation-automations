@@ -1,0 +1,1827 @@
+{
+  "name": "Part 05 - Create video metadata  (title, thumbnail, description, etc.)",
+  "nodes": [
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"youtube\": {\n    \"title\": \"[YouTube Shorts title, max ~60 characters]\",\n    \"description\": \"[2–3 sentence hook with relevant hashtags, no links]\",\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]\n  },\n  \"tiktok\": {\n    \"description\": \"[Short teaser with relevant hashtags, no links]\"\n  },\n  \"rumble\": {\n    \"title\": \"[Rumble-safe title, max ~100 characters, no hashtags]\",\n    \"description\": \"[Brief summary of the story, no hashtags or URLs]\",\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]\n  },\n  \"instagram\": {\n    \"caption\": \"[Engaging text with relevant hashtags, no links]\"\n  },\n  \"snapchat\": {\n    \"title\": \"[Brief eye-catching title]\",\n    \"description\": \"[Short hook with hashtags, no links]\"\n  },\n  \"facebook\": {\n    \"title\": \"[Facebook Reels title, max ~60 characters]\",\n    \"description\": \"[Engaging hook with relevant hashtags, no links]\",\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]\n  },\n  \"pinterest\": {\n    \"title\": \"[Pinterest-safe title, no hashtags]\",\n    \"description\": \"[Story teaser with hashtags allowed, no links]\",\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -620,
+        60
+      ],
+      "id": "facb3327-70c8-474a-8121-2a252f35a3c1",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3220,
+        220
+      ],
+      "id": "5d8875b9-1863-48e4-bc20-9b5e3b31f96d",
+      "name": "Generate metadata"
+    },
+    {
+      "parameters": {
+        "chatId": "$Chat_ID",
+        "text": "=1. YOUTUBE: \ntitle : {{ $json.output.youtube.title }}\ndescription : {{ $json.output.youtube.description.replaceAll(\"\\n\\n\",\"\\n\") }}\ntags : {{ $json.output.youtube.tags }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -100,
+        -340
+      ],
+      "id": "ad05ae5f-670c-4e19-a880-5a29aabae4ed",
+      "name": "Send youtube metadata",
+      "webhookId": "2304f517-1f9d-4d4a-aa1f-3a84cda9d358",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "$Chat_ID",
+        "text": "=2. TIKTOK:\n{{ $json.output.tiktok.description }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        -340
+      ],
+      "id": "3c94b855-1269-4045-85b9-a203576ffc6f",
+      "name": "Send tiktok metadata",
+      "webhookId": "2304f517-1f9d-4d4a-aa1f-3a84cda9d358",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "$Chat_ID",
+        "text": "=3. RUMBLE: \nTitle : {{ $json.output.rumble.title }}\nDescription : {{ $json.output.rumble.description }}\nTags : {{ $json.output.rumble.tags }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -200,
+        -140
+      ],
+      "id": "6a70200d-a7a6-4eb7-8ad9-97710b883ec3",
+      "name": "Send rumble metadata",
+      "webhookId": "2304f517-1f9d-4d4a-aa1f-3a84cda9d358",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a YouTube thumbnail scene description based on the story input. Focus on mood and vibe, not exact events.  \nStory Content: \"{{ $json.content }}\"  \nStory Title: \"{{ $json.title }}\"  \nStory Genre: \"{{ $json.genre }}\"  \n\nREQUIREMENTS:  \nScene Description (90–100 words):  \n- General setting/environment matching story mood  \n- 1–2 modestly clothed figures in simple, clear poses  \n- Key atmospheric elements (shadows, tension, or warmth)  \n- 1–2 objects or symbols for theme  \n- Clean, simple visual design (avoid over-detail)  \n\nTitle Integration (MANDATORY):  \n- Include title \"{{ $json.title }}\" EXACTLY ONCE  \n- Mystery genre: bold WHITE sans-serif text, saturated horror-like colors, eerie contrast  \n- Drama genre: bold BLACK sans-serif text with warm and vibrant colors in the scene  \n- Place title prominently, modern and readable  \n- Do not repeat title, no decorative fonts, no HTML  \n\nAtmosphere:  \n- Mystery: saturated colors, horror tone, shadowy and tense  \n- Drama: emotional, warm, conflict-driven, with warm and vibrant colors  \n\nThe output must always be JSON:  \n{\"prompt\":\"...\"} ",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a YouTube thumbnail scene designer. Your role is to create simple, atmospheric descriptions that capture the vibe of a story, not its exact details. Simplicity is critical for weak image models.\n\nRULES:  \n- Read story for mood and genre  \n- Mystery: use saturated horror colors, tension, shadows, eerie contrast  \n- Drama: focus on emotion, warmth, or conflict with warm and vibrant colors  \n- Use 1–2 main figures in modest clothing, simple poses  \n- Use basic settings (dark alley, living room, street)  \n- Include only a few props/symbols  \n\nTITLE RULES:  \n- Include \"{{ $json.title }}\" EXACTLY ONCE  \n- Mystery: bold WHITE sans-serif, saturated horror style for readability  \n- Drama: bold BLACK sans-serif  \n- Place title prominently, modern, readable  \n- No HTML, no repetition, no decorative fonts  \n\nCONTENT RULES:  \n- No sexual/suggestive content  \n- No religion, gore, or offensive elements  \n- Keep it simple, visual, atmospheric  \n- Always stay within 90–100 words in JSON format {\"prompt\":\"...\"} "
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -3300,
+        840
+      ],
+      "id": "c23e9094-7c12-4f11-bac9-64b52f71c1e2",
+      "name": "Get thumbnail picture prompt",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "$Chat_ID",
+        "text": "=4. Instagram: \n{{ $json.output.instagram.caption }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        40,
+        -140
+      ],
+      "id": "ab5ae796-05ca-452f-bc6e-029e196a04f8",
+      "name": "Send instagram metadata",
+      "webhookId": "2304f517-1f9d-4d4a-aa1f-3a84cda9d358",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "$Chat_ID",
+        "text": "=5. TIKTOK: \ntitle : {{ $json.output.snapchat.title }}\ndescription : {{ $json.output.snapchat.description }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        280,
+        -140
+      ],
+      "id": "c195301b-3b45-46f0-847b-89aeb1466f0b",
+      "name": "Send snapchat metadata",
+      "webhookId": "2304f517-1f9d-4d4a-aa1f-3a84cda9d358",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "$Chat_ID",
+        "text": "=7. Pinterest: \ntitle : {{ $json.output.pinterest.title }}\ndescription : {{ $json.output.pinterest.description.replaceAll(\"\\n\\n\",\"\\n\") }}\ntags : {{ $json.output.pinterest.tags }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        60
+      ],
+      "id": "ee7bb1d6-fcba-42aa-bf71-4e21df8e6d1e",
+      "name": "Send pinterest metadata",
+      "webhookId": "2304f517-1f9d-4d4a-aa1f-3a84cda9d358",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "$Chat_ID",
+        "text": "=6. Facebook: \ntitle : {{ $json.output.facebook.title }}\ndescription : {{ $json.output.facebook.description.replaceAll(\"\\n\\n\",\"\\n\") }}\ntags : {{ $json.output.facebook.tags }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -100,
+        60
+      ],
+      "id": "f49aa656-0c99-4a13-b541-8076e63328d0",
+      "name": "Send facebook metadata",
+      "webhookId": "2304f517-1f9d-4d4a-aa1f-3a84cda9d358",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# GET METADATA FOR VARIOUS PLATFORMS ",
+        "height": 960,
+        "width": 1760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1100,
+        -520
+      ],
+      "typeVersion": 1,
+      "id": "5fb8231a-23de-4b83-ab21-7539519f5cff",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# GET A THUMBNAIL FOR OUR STORY (RATIO 16 X 9)",
+        "height": 1200,
+        "width": 4080,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3420,
+        480
+      ],
+      "typeVersion": 1,
+      "id": "3fd1251e-60aa-48be-beaa-b6076e3b7648",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const genre = $('Get the first unpublished story but video is generated').first().json.genre;\nconst title = $('Get the first unpublished story but video is generated').first().json.title;\nconst story_nb = $('Get the first unpublished story but video is generated').first().json.row_number;\n\nreturn {json:{prompt: $input.first().json.output.prompt, title, story_nb,genre}};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2940,
+        840
+      ],
+      "id": "f53bfea0-5c7b-43ca-a350-83b295827efc",
+      "name": "Get required data to proceed"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -2480,
+        640
+      ],
+      "id": "2c1a4a3f-af67-4397-b95c-36b3535cfd44",
+      "name": "Convert JSON to file"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {output:{prompt: $input.first().json.prompt, story_num: $input.first().json.story_nb, title:$input.first().json.title, genre:$input.first().json.genre}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2700,
+        640
+      ],
+      "id": "11f38aa0-27a8-4538-9723-31501d1d886c",
+      "name": "Save temp data"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "thumbnail_data.txt",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -2260,
+        740
+      ],
+      "id": "3786065c-cfb6-4983-9890-a2e92e4261db",
+      "name": "Upload new temp file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "/thumbnail_data.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -2260,
+        540
+      ],
+      "id": "cdff910c-6f52-4e5c-9444-0a1b16e5d115",
+      "name": "Delete old temp file if exists",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "/thumbnail_data.txt",
+        "binaryPropertyName": "output"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        1300
+      ],
+      "id": "c0d34d03-9163-4aa4-8525-9a1909d044dd",
+      "name": "Get the temp file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "output",
+        "destinationKey": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        1300
+      ],
+      "id": "b267d3d3-993e-44f5-95a4-94bf3fb0e894",
+      "name": "Extract the required infos from the temp file"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4adb2d8a-ebe5-456e-a651-85ac46906041",
+              "name": "prompt",
+              "value": "={{$json.output.parseJson().prompt}}",
+              "type": "string"
+            },
+            {
+              "id": "afa2f520-d3a3-474d-80cb-05e128043a96",
+              "name": "story_num",
+              "value": "={{$json.output.parseJson().story_num}}",
+              "type": "string"
+            },
+            {
+              "id": "08831a0e-249c-418c-bdfc-6a6252364e35",
+              "name": "title",
+              "value": "={{$json.output.parseJson().title}}",
+              "type": "string"
+            },
+            {
+              "id": "ff2b0976-7e1a-43c6-b224-5928c025e46b",
+              "name": "genre",
+              "value": "={{$json.output.parseJson().genre}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1300
+      ],
+      "id": "28e7b265-1ca1-4fd3-9bbf-b260fb099e79",
+      "name": "Parse JSON fields"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "=/final_result/{{ $json.story_num }} - {{ $json.title }} - thumbnail.jpeg",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        220,
+        1300
+      ],
+      "id": "309a7f83-ff4a-48ee-a9be-ba3c6d0b7a58",
+      "name": "Delete old thumbnail picture",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "432bfd2c-b579-4dbf-a778-82bd1048b1df",
+              "name": "prompt",
+              "value": "={{ $('Parse JSON fields').item.json.prompt }}",
+              "type": "string"
+            },
+            {
+              "id": "f7ca9502-b385-4416-a3de-35c2d2653c45",
+              "name": "genre",
+              "value": "={{ $('Parse JSON fields').item.json.genre }}",
+              "type": "string"
+            },
+            {
+              "id": "82db7332-ecbb-4d39-aa0e-caf25349564c",
+              "name": "title",
+              "value": "={{ $('Parse JSON fields').item.json.title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        1300
+      ],
+      "id": "2f569eb4-d6b7-4442-bdb0-c6a70427b6e9",
+      "name": "Get needed data"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$('Get required data to proceed').item.json.genre }}",
+                    "rightValue": "mystery",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "242d0f67-fe79-470a-9596-53da2deaff13"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "mystery"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "53a6a955-fe96-4623-b461-93bfc4065511",
+                    "leftValue": "={{ $('Get required data to proceed').item.json.genre }}",
+                    "rightValue": "drama",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "drama"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1320,
+        1040
+      ],
+      "id": "5dab49e1-fb3a-43e4-8580-f3f3d6e2edd1",
+      "name": "Check story genre"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "=/final_result/{{ $('Get required data to proceed').item.json.story_nb }} - {{ $('Get required data to proceed').item.json.title }} - thumbnail.jpeg",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        900
+      ],
+      "id": "229c8408-1b6b-4858-88e8-cf2667bccb52",
+      "name": "Upload temp Thumbnail picture",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "output",
+        "destinationKey": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        840
+      ],
+      "id": "9fdc887b-5024-4d42-8210-ae9b5da048b6",
+      "name": "Extract temp file content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "afa2f520-d3a3-474d-80cb-05e128043a96",
+              "name": "story_num",
+              "value": "={{$json.output.parseJson().story_num}}",
+              "type": "string"
+            },
+            {
+              "id": "08831a0e-249c-418c-bdfc-6a6252364e35",
+              "name": "title",
+              "value": "={{$json.output.parseJson().title}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        840
+      ],
+      "id": "6affe575-754c-499f-ae40-37139d7ed6d8",
+      "name": "Parse temp file content"
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "=/final_result/{{ $json.story_num }} - {{ $json.title }} - thumbnail.jpeg"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        220,
+        840
+      ],
+      "id": "3e6c9809-7c0a-4463-bb6d-56fabc57f51c",
+      "name": "Download Thumbnail from storage",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "/thumbnail_data.txt",
+        "binaryPropertyName": "output"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        840
+      ],
+      "id": "7505a0e3-c320-408a-8022-2c3b3d540607",
+      "name": "Download temp file from storage",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "$Chat_ID",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        740
+      ],
+      "id": "738acafc-6601-405b-a73a-c9d6d9ebf263",
+      "name": "Send Thumbnail via telegram",
+      "webhookId": "7d7b5dd8-ebc9-4330-9b16-1764485c2380",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZkEZYUYHlxbg4JjO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "/thumbnail_data.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        440,
+        940
+      ],
+      "id": "d1168b9c-9894-4ef0-bcc2-af17e1fa78bc",
+      "name": "Delete temp file for cleanup",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "numberInputs": 8
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        840,
+        280
+      ],
+      "id": "03c8b41b-f985-4e4a-ac27-9f39542c6f6c",
+      "name": "Make sure all nodes have finished working"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.genre.toLowerCase() }}",
+                    "rightValue": "mystery",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "242d0f67-fe79-470a-9596-53da2deaff13"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "mystery"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "53a6a955-fe96-4623-b461-93bfc4065511",
+                    "leftValue": "={{ $json.genre.toLowerCase() }}",
+                    "rightValue": "drama",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "drama"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -2640,
+        1040
+      ],
+      "id": "735fa774-dd0a-49fc-985a-76525c5ad0c5",
+      "name": "Routes based on story genre"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ab26f3a-bf49-46c4-86f7-9ef5a3541251",
+              "name": "prompt",
+              "value": "=Semi-realistic illustrative realism style with detailed anatomy, subtle shading, and vibrant yet natural tones. {{$json.prompt.replaceAll(\";\",\".\").replaceAll(\"\\\"\",\"'\")}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2420,
+        1140
+      ],
+      "id": "5cdd9052-5227-472c-8a06-904dd722553d",
+      "name": "Drama prompt template"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "60313cf4-1fab-44a5-97b9-ce5cdecdebca",
+              "name": "prompt",
+              "value": "={{ $json.prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2200,
+        1040
+      ],
+      "id": "601a93e3-6b0f-4300-a2cd-14f7cc45e81f",
+      "name": "Get url coded prompt"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ",
+          "mode": "list",
+          "cachedResultName": "formatted reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 188069496,
+          "mode": "list",
+          "cachedResultName": "sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit#gid=188069496"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_story": "={{ $('Get the first unpublished story but video is generated').item.json.id_story }}",
+            "published": "yes"
+          },
+          "matchingColumns": [
+            "id_story"
+          ],
+          "schema": [
+            {
+              "id": "id_story",
+              "displayName": "id_story",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "subreddit",
+              "displayName": "subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "used before",
+              "displayName": "used before",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "published",
+              "displayName": "published",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "genre",
+              "displayName": "genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1220,
+        400
+      ],
+      "id": "57c6bb87-4f61-42ba-9b16-db3dd31821ba",
+      "name": "Update story column \"published\" to \"yes\"",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ",
+          "mode": "list",
+          "cachedResultName": "formatted reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 188069496,
+          "mode": "list",
+          "cachedResultName": "sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit#gid=188069496"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "published",
+              "lookupValue": "no"
+            },
+            {
+              "lookupColumn": "used before",
+              "lookupValue": "yes"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -3000,
+        220
+      ],
+      "id": "cac64490-4d99-454e-8cef-3407f2537ecd",
+      "name": "Get the first unpublished story but video is generated",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -3300,
+        1020
+      ],
+      "id": "8f1b2a3c-e90e-47b1-aeaf-beb5bb9f9676",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NWChq5dUaX00D8C9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1dd1fb1-a88b-4297-83ac-bc4de5b0e33d",
+              "name": "prompt",
+              "value": "=Graphic horror novel style with inked lines, stippled shading, heavy shadows, and rim-lit hatching. {{$json.prompt.replaceAll(\";\",\".\").replaceAll(\"\\\"\",\"'\")}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2420,
+        920
+      ],
+      "id": "70443af0-284c-4295-9ba0-c8b50d5f257a",
+      "name": "Mystery prompt template"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"prompt\":\"...\"\n} "
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -3140,
+        1020
+      ],
+      "id": "8d6de49f-6a5e-4691-9675-8b7169d5be3a",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        1000
+      ],
+      "id": "8be39c54-3d4c-43b4-9716-42a409f11abe",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NWChq5dUaX00D8C9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7ff9a074-e75c-472d-bb7a-dd21e68a108b",
+              "leftValue": "={{ $json.output.match(/[\"']result[\"']\\s*:\\s*[\"'](yes|no)[\"']/i)?.[1].toLowerCase() || \"\" }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -680,
+        1040
+      ],
+      "id": "5e836601-eacc-49e2-836f-b2dc88671b74",
+      "name": "Check VL model response"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        60
+      ],
+      "id": "3ea61475-a31c-4fc0-bb33-96792f084bd6",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NWChq5dUaX00D8C9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Evaluate the provided image against strict criteria. Return only:  \n- {'result':'yes'} if ALL requirements are met  \n- {'result':'no','reason':'...'} if ANY requirement fails, with a specific reason  \n\nProvided Title: \"{{ $('Get required data to proceed').item.json.title }}\"\n\nREQUIREMENTS:  \n1. Title: Must match \"{{ $('Get required data to proceed').item.json.title }}\" exactly. Must be overlaid, large, bold horror-style font, unique contrasting color, fully readable at thumbnail size.  \n   If missing, altered, unreadable, too small, blends in, or not overlaid → {'result':'no','reason':'title not displayed as specified'}  \n\n2. Title-Image Match: Image must visually support the title. If not → {'result':'no','reason':'title-image mismatch visual content does not correspond to or support the provided title'}  \n\n3. Tone: Must evoke horror, dread, unease, or melancholy. If humorous, cute, romantic, joyful, or absurd → {'result':'no','reason':'tone inconsistent with horror and dread'}  \n\n4. Clothing: Full modesty required. No chest/shoulder/midriff exposure, no knees visible, no outlines, cleavage, bulges, sheer fabrics, shorts, tight/suggestive clothing, or streetwear.  \n   If violated → {'result':'no','reason':'inappropriate or revealing clothing'}  \n\n5. Colors: Must evoke fear/suspense with dark palettes, ominous lighting, or unsettling contrasts. No flat schemes, pure B/W, or bright cheerful colors.  \n   If violated → {'result':'no','reason':'colors do not evoke fear and suspense'}  \n\n6. Anatomy: Characters must have correct anatomy with no missing limbs, extra limbs, distorted proportions, broken joints, or unnatural body structures.  \n   If violated → {'result':'no','reason':'anatomy error'}  \n\nReturn {'result':'yes'} only if ALL criteria are satisfied.  ",
+        "options": {
+          "systemMessage": "=You are a visual content evaluation expert. Always respond with exactly one JSON object:  \n- {'result':'yes'} if all rules are satisfied  \n- {'result':'no','reason':'...'} if any fail  \n\nCheck against Provided Title: \"{{ $('Get required data to proceed').item.json.title }}\"\n\nRULES:  \n- Title must exactly match provided title, be overlaid clearly, large, bold, horror-style, unique contrasting color, fully readable at thumbnail size.  \n- If title missing, altered, incomplete, unreadable, or embedded in scene → fail  \n- Image must support title content → mismatch = fail  \n- Tone must be horror, dread, unease, or melancholy → other moods = fail  \n- Clothing must be fully modest → any violation = fail  \n- Colors must evoke fear/suspense (dark palettes, ominous contrasts) → cheerful/flat/B&W = fail  \n- Anatomy must be correct → no missing limbs, extra limbs, distorted proportions, or broken anatomy allowed  \n\nOnly return {'result':'yes'} if ALL rules pass.  ",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1160,
+        780
+      ],
+      "id": "7f576a6e-2c56-4e91-b2fa-f514446a4091",
+      "name": "VL Model to Check Generated Picture (Mystery)",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Evaluate the provided image against strict criteria. Return only:  \n- {'result':'yes'} if ALL requirements are met  \n- {'result':'no','reason':'...'} if ANY requirement fails, with a specific reason  \n\nProvided Title: \"{{ $('Get required data to proceed').item.json.title }}\"\n\nREQUIREMENTS:  \n1. Title: Must match \"{{ $('Get required data to proceed').item.json.title }}\" exactly. Must be overlaid in large bold dramatic font, contrasting color, fully readable at thumbnail size, positioned clearly on top (not inside scene).  \n   If missing, altered, unreadable, too small, blends in, or misplaced → {'result':'no','reason':'title not displayed as specified'}  \n\n2. Title-Image Match: Image must visually support the title. If not → {'result':'no','reason':'title-image mismatch'}  \n\n3. Tone: Must evoke drama — emotion, conflict, romance, humor, or everyday life. No horror, gore, supernatural, or extreme violence.  \n   If violated → {'result':'no','reason':'tone inconsistent with drama'}  \n\n4. Clothing: Full modesty required. No exposed chest, cleavage, outlines, bulges, sheer fabrics, shorts, tight/suggestive outfits, or modern streetwear.  \n   If violated → {'result':'no','reason':'inappropriate clothing'}  \n\n5. Colors: Must support drama/emotion with warm palettes, dramatic lighting, or compelling contrasts. No single-color schemes, pure B/W, or dark horror tones.  \n   If violated → {'result':'no','reason':'colors inadequate for drama'}  \n\n6. Anatomy: Characters must have correct anatomy with no missing limbs, extra limbs, distorted body parts, or unnatural proportions.  \n   If violated → {'result':'no','reason':'anatomy error'}  \n\nReturn {'result':'yes'} only if ALL criteria are satisfied.  ",
+        "options": {
+          "systemMessage": "=You are a visual content evaluation expert. Always respond with exactly one JSON object:  \n- {'result':'yes'} if all rules are satisfied  \n- {'result':'no','reason':'...'} if any fail  \n\nCheck against Provided Title: \"{{ $('Get required data to proceed').item.json.title }}\"\n\nRULES:  \n- Title must exactly match provided title, be overlaid clearly, large bold dramatic font, contrasting color, fully readable at thumbnail size, positioned on top (not embedded in scene).  \n- If missing, wrong, incomplete, unreadable, or misplaced → fail  \n- Image must support the title → mismatch = fail  \n- Tone must be drama (emotion, conflict, humor, romance, everyday life) → horror/gore/supernatural/extreme violence = fail  \n- Clothing must be fully modest → any violation = fail  \n- Colors must enhance drama (warm palettes, dramatic lighting, contrasts) → single-color, pure B/W, or horror palettes = fail  \n- Anatomy must be correct → no missing limbs, extra limbs, distorted proportions, or broken anatomy allowed  \n\nOnly return {'result':'yes'} if ALL rules strictly pass.  ",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1160,
+        1180
+      ],
+      "id": "b722eaa0-60e3-4b40-80fa-48246f63821e",
+      "name": "VL Model to Check Generated Picture (Drama)",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on the following horror story, generate optimized social media metadata for publishing on short-form video platforms: YouTube Shorts, TikTok, Rumble, Instagram Reels, Snapchat Spotlight, Facebook Reels, and Pinterest.\n\nEnsure that:\n\nAll output reflects the tone and theme of the specific horror story.\n\nTitles and descriptions are emotionally gripping, platform-appropriate, and aligned with horror genre conventions.\n\nCTAs are optional, must feel human and story-specific, never robotic or humorous.\n\nDo not include any irrelevant details — stick strictly to the provided story.\n\nPlatform formatting rules:\n\nYouTube Shorts: title, description (2–3 sentence hook with relevant hashtags, no links), and tags (array of relevant keywords).\n\nTikTok: description only (short teaser with relevant hashtags, no links).\n\nRumble: title, description (brief compelling summary, no hashtags or links), and tags (array of relevant keywords).\n\nInstagram Reels: caption only (engaging text with relevant hashtags, no links).\n\nSnapchat Spotlight: title and description (brief hook, hashtags allowed, no links).\n\nFacebook Reels: title, description (engaging hook with hashtags, no links), and tags.\n\nPinterest: title, description (story teaser, no hashtags in title, hashtags allowed in description), and tags.\n\nReturn the output as a clean, automation-ready JSON object in the following format:\n\n{\n  \"youtube\": {\n    \"title\": \"[YouTube Shorts title, max ~60 characters]\",\n    \"description\": \"[2–3 sentence hook with relevant hashtags, no links]\",\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]\n  },\n  \"tiktok\": {\n    \"description\": \"[Short teaser with relevant hashtags, no links]\"\n  },\n  \"rumble\": {\n    \"title\": \"[Rumble-safe title, max ~100 characters, no hashtags]\",\n    \"description\": \"[Brief summary of the story, no hashtags or URLs]\",\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]\n  },\n  \"instagram\": {\n    \"caption\": \"[Engaging text with relevant hashtags, no links]\"\n  },\n  \"snapchat\": {\n    \"title\": \"[Brief eye-catching title]\",\n    \"description\": \"[Short hook with hashtags, no links]\"\n  },\n  \"facebook\": {\n    \"title\": \"[Facebook Reels title, max ~60 characters]\",\n    \"description\": \"[Engaging hook with relevant hashtags, no links]\",\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]\n  },\n  \"pinterest\": {\n    \"title\": \"[Pinterest-safe title, no hashtags]\",\n    \"description\": \"[Story teaser with hashtags allowed, no links]\",\n    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]\n  }\n}\nStory Info:\nTitle: {{$json.title}}\nContent: {{$json.content}}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert social media content assistant specializing in horror short-form video publishing. You understand platform-specific requirements for YouTube Shorts, TikTok, Rumble, Instagram Reels, Snapchat Spotlight, Facebook Reels, and Pinterest, including tone, character limits, and audience expectations for horror content.\nYour tone must always be dark, suspenseful, and gripping — never robotic, overly formal, or humorous.\nYou must always output a clean, well-structured JSON object containing:\n\nYouTube Shorts: title, description (hashtags but no links), tags.\n\nTikTok: description (hashtags but no links).\n\nRumble: title, description (no hashtags or links), tags.\n\nInstagram Reels: caption (hashtags but no links).\n\nSnapchat Spotlight: title, description (hashtags but no links).\n\nFacebook Reels: title, description (hashtags but no links), tags.\n\nPinterest: title (no hashtags), description (hashtags allowed, no links), tags.\nNever include extra text or explanations — only return the JSON object."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -800,
+        -140
+      ],
+      "id": "8e5e73b5-47ef-4f9c-b084-50a6d147245b",
+      "name": "Get metadata for 7 platforms"
+    },
+    {
+      "parameters": {
+        "content": "# ⚠️ IMPORTANT!!!\n\n### Make sure to change your credentials obtained from Cloudflare in the node called “CloudFlare API call (Image Gen)”.\n\n- Replace \"$cloudflare_account_id\" in the URL with your own Cloudflare Account ID.\n- Replace \"$cloudflare_api_token\" with your own Cloudflare API Token.\n\n### Also make sure to change the chat id for the telegram All nodes ($Chat_ID) with your own chat id.",
+        "height": 320,
+        "width": 800,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4260,
+        480
+      ],
+      "typeVersion": 1,
+      "id": "31171ad6-9ebc-482a-9f8f-7723293a43dc",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudflare.com/client/v4/accounts/$cloudflare_account_id/ai/run/@cf/black-forest-labs/flux-1-schnell",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer $cloudflare_api_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \n    \"prompt\": \"{{ $json.prompt.replaceAll(\"\\\"\",\"'\") }}\",\n    \"height\":720,\n    \"width\":1280,\n    \"steps\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2020,
+        1040
+      ],
+      "id": "1698b2d4-cc93-4f93-85f6-09ab1b10db03",
+      "name": "CloudFlare API call (Image Gen)",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "result.image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1760,
+        1020
+      ],
+      "id": "efb6ce34-1975-4423-a615-27e6b925c9b6",
+      "name": "Convert the generated Base64 to Image"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Get metadata for 7 platforms",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate metadata": {
+      "main": [
+        [
+          {
+            "node": "Get the first unpublished story but video is generated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send youtube metadata": {
+      "main": [
+        [
+          {
+            "node": "Make sure all nodes have finished working",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send tiktok metadata": {
+      "main": [
+        [
+          {
+            "node": "Make sure all nodes have finished working",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Send rumble metadata": {
+      "main": [
+        [
+          {
+            "node": "Make sure all nodes have finished working",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Get thumbnail picture prompt": {
+      "main": [
+        [
+          {
+            "node": "Get required data to proceed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send pinterest metadata": {
+      "main": [
+        [
+          {
+            "node": "Make sure all nodes have finished working",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "Send facebook metadata": {
+      "main": [
+        [
+          {
+            "node": "Make sure all nodes have finished working",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Send snapchat metadata": {
+      "main": [
+        [
+          {
+            "node": "Make sure all nodes have finished working",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Send instagram metadata": {
+      "main": [
+        [
+          {
+            "node": "Make sure all nodes have finished working",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Get required data to proceed": {
+      "main": [
+        [
+          {
+            "node": "Save temp data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Routes based on story genre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert JSON to file": {
+      "main": [
+        [
+          {
+            "node": "Upload new temp file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete old temp file if exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save temp data": {
+      "main": [
+        [
+          {
+            "node": "Convert JSON to file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the temp file": {
+      "main": [
+        [
+          {
+            "node": "Extract the required infos from the temp file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract the required infos from the temp file": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON fields": {
+      "main": [
+        [
+          {
+            "node": "Delete old thumbnail picture",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete old thumbnail picture": {
+      "main": [
+        [
+          {
+            "node": "Get needed data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get needed data": {
+      "main": [
+        [
+          {
+            "node": "Routes based on story genre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check story genre": {
+      "main": [
+        [
+          {
+            "node": "VL Model to Check Generated Picture (Mystery)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "VL Model to Check Generated Picture (Drama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload temp Thumbnail picture": {
+      "main": [
+        []
+      ]
+    },
+    "Extract temp file content": {
+      "main": [
+        [
+          {
+            "node": "Parse temp file content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse temp file content": {
+      "main": [
+        [
+          {
+            "node": "Download Thumbnail from storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Thumbnail from storage": {
+      "main": [
+        [
+          {
+            "node": "Delete temp file for cleanup",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Thumbnail via telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download temp file from storage": {
+      "main": [
+        [
+          {
+            "node": "Extract temp file content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Thumbnail via telegram": {
+      "main": [
+        []
+      ]
+    },
+    "Make sure all nodes have finished working": {
+      "main": [
+        [
+          {
+            "node": "Update story column \"published\" to \"yes\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Routes based on story genre": {
+      "main": [
+        [
+          {
+            "node": "Mystery prompt template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Drama prompt template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drama prompt template": {
+      "main": [
+        [
+          {
+            "node": "Get url coded prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get url coded prompt": {
+      "main": [
+        [
+          {
+            "node": "CloudFlare API call (Image Gen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update story column \"published\" to \"yes\"": {
+      "main": [
+        []
+      ]
+    },
+    "Get the first unpublished story but video is generated": {
+      "main": [
+        [
+          {
+            "node": "Get thumbnail picture prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get metadata for 7 platforms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Get thumbnail picture prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mystery prompt template": {
+      "main": [
+        [
+          {
+            "node": "Get url coded prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Get thumbnail picture prompt",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "VL Model to Check Generated Picture (Mystery)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "VL Model to Check Generated Picture (Drama)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check VL model response": {
+      "main": [
+        [
+          {
+            "node": "Download temp file from storage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get the temp file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Get metadata for 7 platforms",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete temp file for cleanup": {
+      "main": [
+        [
+          {
+            "node": "Make sure all nodes have finished working",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "VL Model to Check Generated Picture (Mystery)": {
+      "main": [
+        [
+          {
+            "node": "Check VL model response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get the temp file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VL Model to Check Generated Picture (Drama)": {
+      "main": [
+        [
+          {
+            "node": "Check VL model response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get the temp file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get metadata for 7 platforms": {
+      "main": [
+        [
+          {
+            "node": "Send youtube metadata",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send facebook metadata",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send tiktok metadata",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send rumble metadata",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send pinterest metadata",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send instagram metadata",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send snapchat metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudFlare API call (Image Gen)": {
+      "main": [
+        [
+          {
+            "node": "Convert the generated Base64 to Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get the temp file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert the generated Base64 to Image": {
+      "main": [
+        [
+          {
+            "node": "Upload temp Thumbnail picture",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check story genre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "80e3c234-976c-4c92-8f6d-36ecc9f6b5a8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa02f91765655e9392e3b75ce8731df7653a09e5799bd530306e1a97fbd5936c"
+  },
+  "id": "7uFRcjAqK7bdsa23",
+  "tags": []
+}

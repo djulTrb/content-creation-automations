@@ -1,0 +1,316 @@
+{
+  "name": "rss feed",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -80
+      ],
+      "id": "246944b6-83a4-4afd-bd51-9e1459784f9f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.subreddit_link }}.rss ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        496,
+        -80
+      ],
+      "id": "55eb3974-0dc6-4c5c-855a-ba2c42f3dc18",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d33d50a5-a3da-44de-9ffe-fc9deb3b9b1f",
+              "name": "subreddit_link",
+              "value": "https://www.reddit.com/r/creepypasta/",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        -80
+      ],
+      "id": "194e6908-45cf-406b-9f86-33cdf0e2e2b8",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.subreddit_link\n\nconst SL = input.trim().split(\"\").pop() === \"/\" ? input.trim().slice(0,-1) : input\n\nreturn {subreddit_link:SL}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        -80
+      ],
+      "id": "7c662772-d184-485f-b05d-9fde1ff78994",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d5ae4fa-2f54-48d7-8f61-766f4ecf9d96",
+              "name": "Title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "id": "aeba9173-390a-4580-8a0a-7f9d354e41d4",
+              "name": "Post content",
+              "value": "={{ $json.contentSnippet }}",
+              "type": "string"
+            },
+            {
+              "id": "8eb33a06-d8e7-4eea-bcd3-f956e20e06e6",
+              "name": "Subreddit",
+              "type": "string",
+              "value": "={{ $json.link.match(/\\/r\\/([^/]+)/)[1] }}"
+            },
+            {
+              "id": "6f92bce7-2dc5-4dfd-b216-efc12c5411bb",
+              "name": "URL",
+              "type": "string",
+              "value": "={{ $json.link }}"
+            },
+            {
+              "id": "0a9fb817-bfb7-4ea7-9182-1eddc404035f",
+              "name": "Post ID",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "893a2437-5d36-4dc2-ba45-9b0ba6a6d5a9",
+      "name": "Get needed data1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        720,
+        -80
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI",
+          "mode": "list",
+          "cachedResultName": "reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 119903028,
+          "mode": "list",
+          "cachedResultName": "sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI/edit#gid=119903028"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.Title }}",
+            "content": "={{ $json[\"Post content\"] }}",
+            "subreddit": "={{ $json.Subreddit }}",
+            "url": "={{ $json.URL }}",
+            "id_story": "={{ $json['Post ID'] }}",
+            "used before": "no"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id_story",
+              "displayName": "id_story",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subreddit",
+              "displayName": "subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "used before",
+              "displayName": "used before",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        944,
+        -80
+      ],
+      "id": "a27307ee-e703-4d5a-99a1-b9a5e56cc0df",
+      "name": "Upload stories into google sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Get the subreddit's link from the browser then put it in the Set (Second node) it will get 25 posts from reddit.\n\n## Re-fire the workflow to get more (no API key or Tokens needed)",
+        "height": 400,
+        "width": 672
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "6c49cf4e-c5f7-486e-9bfb-937deffdc20f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Reddit RSS feed\n",
+        "height": 400,
+        "width": 1536,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "7cfc0571-7e85-4a41-af43-f9c7f259cc3b",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Get needed data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get needed data1": {
+      "main": [
+        [
+          {
+            "node": "Upload stories into google sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "42af1c56-9bfa-492f-8113-b09322807a7e",
+  "meta": {
+    "instanceId": "aa02f91765655e9392e3b75ce8731df7653a09e5799bd530306e1a97fbd5936c"
+  },
+  "id": "kY1jWFS6MezW03ZN",
+  "tags": []
+}

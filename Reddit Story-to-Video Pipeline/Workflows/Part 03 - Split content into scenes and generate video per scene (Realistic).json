@@ -1,0 +1,2936 @@
+{
+  "name": "Part 03 - Split content into scenes and generate video per scene (Realistic)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# SPLIT SCRIPT INTO SCENES :\nEach scene will get : a prompt, scene_nb, scipt, essential parts\n1. scene_nb to use it incase of error and other utilities\n2. prompt for the image generation model [ pollinations.ai ]\n3. script for the the narration using kokoro tts model\n4. essential parts is for the vision model later on to check if the image generated for the scene is actually good for usage",
+        "height": 1220,
+        "width": 3140,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4380,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "d8bc928b-f31e-41e2-91c8-9fb742214d11",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "# Generate Scenes Images",
+        "height": 1220,
+        "width": 2880,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "20bea279-7da3-4b93-adf7-491c8cb04897",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "# Assemble Scene Video \n=> here we are using NCA TOOLKIT by STEPHEN G POPE ",
+        "height": 1220,
+        "width": 2180,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3740,
+        620
+      ],
+      "typeVersion": 1,
+      "id": "221be21f-7a5d-4417-aa37-93e20b13d7db",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "=/{{ $json.story_title.replaceAll(\" \",\"_\") }}(story_{{ $json.story_num }})/image{{ $json.scene_num }}.jpeg",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        100,
+        1200
+      ],
+      "id": "716b9ff9-17d3-4fc1-9781-acdc9c24ff3a",
+      "name": "Delete a file4",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Prepare for Final Video Assembly",
+        "height": 440,
+        "width": 1380,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        1860
+      ],
+      "typeVersion": 1,
+      "id": "78a3fd03-2d86-4f34-9d96-37354f5f2e5d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "#  Evaluate & Validate Images : \ncheck if it fits the : \n - Storytelling\n - Mood\n - Characters.",
+        "height": 1220,
+        "width": 1190,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "cc6b414b-b624-4f32-bb58-1ce5c18839da",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# GENERATE SPEECH",
+        "height": 1220,
+        "width": 800,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "6e3ff825-ee15-469e-9b33-3a94b4049bfe",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "# WORKFLOW III : SPLIT CONTENT INTO SCENES AND GENERATE VIDEO PER SCENE.",
+        "height": 1820,
+        "width": 10440,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4420,
+        500
+      ],
+      "typeVersion": 1,
+      "id": "16ccb5c1-ca6b-4f87-9bd4-b69fcd2832df",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ",
+          "mode": "list",
+          "cachedResultName": "formatted reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 188069496,
+          "mode": "list",
+          "cachedResultName": "sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit#gid=188069496"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "used before",
+              "lookupValue": "no"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -4080,
+        980
+      ],
+      "id": "528bc3d1-e061-4ce1-ab27-5f2f59d7bd0e",
+      "name": "Get the first unused story",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "/story_data.txt"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -3840,
+        1180
+      ],
+      "id": "0a81c31d-f779-460b-81d3-271ab566102f",
+      "name": "Download story_data from MinIO",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -3000,
+        1640
+      ],
+      "id": "5ba96c88-02ff-4b34-b228-8275a789743b",
+      "name": "Extract Story data"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {json : {output:JSON.parse($input.first().json.data)}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2780,
+        1640
+      ],
+      "id": "72f87087-aaa4-4102-af6e-9e94ab83d9b1",
+      "name": "Parse JSON file"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.scenes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -2480,
+        1640
+      ],
+      "id": "319cb299-cd04-4d01-9c9e-d65ab0582bce",
+      "name": "Split the scenes"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2280,
+        960
+      ],
+      "id": "9a849b45-fb83-4b6c-8b6f-8700274abd37",
+      "name": "Merge Data"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2500,
+        960
+      ],
+      "id": "7658a829-8c39-4cc7-9825-3b690e4f6a47",
+      "name": "Merge needed data1"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "bucketName": "nca-toolkit",
+        "folderName": "={{ $('Get the first unused story').item.json.title.replaceAll(\" \",\"_\") }}(story_{{ $('Get the first unused story').item.json.row_number }})",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -3400,
+        820
+      ],
+      "id": "bc66bf67-5dbd-40ed-b1e4-04dbdf91c04b",
+      "name": "Create the story folder",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "bucketName": "nca-toolkit",
+        "folderName": "=/{{ $('Get the first unused story').item.json.title.replaceAll(\" \",\"_\") }}(story_{{ $('Get the first unused story').item.json.row_number }})/story_parts",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -3180,
+        820
+      ],
+      "id": "443d88fe-05d2-4ee2-b032-45fdfb053fad",
+      "name": "Create story parts folder inside the story folder",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "getAll",
+        "bucketName": "nca-toolkit",
+        "limit": 1,
+        "options": {
+          "folderKey": "={{ $json.title.replaceAll(\" \",\"_\") }}(story_{{ $json.row_number }})"
+        }
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -3840,
+        820
+      ],
+      "id": "e9c6112a-3a80-4bd6-80f7-8555bad97cce",
+      "name": "Get the temp story folder",
+      "alwaysOutputData": true,
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5fb7e31b-925a-4744-a7ac-39d1fb566064",
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3620,
+        820
+      ],
+      "id": "862d2e28-1417-405b-87bb-cb93a8b9dffa",
+      "name": "Check if temp story folder exists"
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "/story_data.txt"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -2080,
+        760
+      ],
+      "id": "53d73691-54f7-49bd-94db-45d4f4b7dc62",
+      "name": "Download story_data file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1640,
+        760
+      ],
+      "id": "ba89a972-e239-41a9-b7fa-cefde8fe592b",
+      "name": "Convert JSON to file"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "story_data.txt",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -1420,
+        760
+      ],
+      "id": "972cdd11-7a1a-4773-a68e-065414d0569c",
+      "name": "Upload story_data.txt to MinIO",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": "=1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1080,
+        1240
+      ],
+      "id": "1a892779-2114-4524-8595-170f1fd628db",
+      "name": "Loop over scenes"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8880/v1/audio/speech",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"kokoro\",\n  \"input\": \"{{ $json.story_part.replaceAll(\"\\\"\",\"\").replaceAll(\"\\n\",\". \").replaceAll(\"*\",\"\").replaceAll(\"\",\"\") }}\",\n  \"voice\": \"{{$json.genre.toLowerCase() === \"mystery\" ? \"af_nicole\" : \"af_bella\"}}\",\n  \"response_format\": \"mp3\",\n  \"download_format\": \"mp3\",\n  \"speed\": {{$json.genre.toLowerCase() === \"mystery\" ? 1.3 : 1 }},\n  \"stream\": true,\n  \"return_download_link\": false,\n  \"volume_multiplier\": 1,\n  \"normalization_options\": {\n    \"normalize\": true,\n    \"unit_normalization\": false,\n    \"url_normalization\": true,\n    \"email_normalization\": true,\n    \"optional_pluralization_normalization\": true,\n    \"phone_normalization\": true,\n    \"replace_remaining_symbols\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -880,
+        920
+      ],
+      "id": "9992c05e-73a6-4ac4-9d44-5a393345b2b4",
+      "name": "Generate speech /w local kokoro tts",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "=/{{ $('Get the first unused story').item.json.title.replaceAll(\" \",\"_\") }}(story_{{ $('Get the first unused story').item.json.row_number }})/audio{{ $('Generate speech /w local kokoro tts').item.json.scene_num }}.mp3",
+        "binaryPropertyName": "=data",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        920
+      ],
+      "id": "2388b88c-a653-465c-a733-c317e605b60d",
+      "name": "Upload speech mp3 to MinIO",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.title.replaceAll(\" \",\"_\") }}(story_{{ $json.row_number }})/image{{ $json.scene_num }}.jpeg",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        420,
+        1060
+      ],
+      "id": "3359722a-17ba-482b-988c-bb7f066c8c0e",
+      "name": "Delete old scene BG Image",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "600a08d5-e965-45ba-b02e-03a2e841f5e5",
+              "leftValue": "={{ $json.genre.toLowerCase() }}",
+              "rightValue": "mystery",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3620,
+        1180
+      ],
+      "id": "40b01784-911f-4593-a0eb-c809750655bc",
+      "name": "Checking the story genre"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "=/{{ $('Get necessary data for nca-toolkit').item.json.title.replaceAll(\" \",\"_\") }}(story_{{ $('Get necessary data for nca-toolkit').item.json.row_number }})/story_parts/video{{ $('Get necessary data for nca-toolkit').item.json.scene_num }}.mp4",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5740,
+        740
+      ],
+      "id": "18fdfc58-7cd6-4d03-b3c1-723bd9f6d8ad",
+      "name": "Upload final scene video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/video/caption",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"video_url\": \"{{ $json.response[0].file_url }}\",\n    \"replace\": [\n        {\n            \"find\": \".\",\n            \"replace\": \"\"\n        },\n        {\n            \"find\": \",\",\n            \"replace\": \"\"\n        }\n    ],\n    \"settings\": {\n        \"line_color\": \"#FFF8C9\",\n        \"word_color\": \"#FFF8C9\",\n        \"all_caps\": false,\n        \"max_words_per_line\": 1,\n        \"font_size\": 93,\n        \"bold\": true,\n        \"italic\": true,\n        \"underline\": false,\n        \"strikeout\": false,\n        \"outline_width\": 3,\n        \"shadow_offset\": 4,\n        \"style\": \"word_by_word\",\n        \"font_family\": \"The Bold Font\",\n        \"position\":\"middle_center\"\n    },\n    \"id\": \"gdrive-five\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5300,
+        840
+      ],
+      "id": "f35456cd-17fa-494c-9ff7-df74ade07024",
+      "name": "Caption the video",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      },
+      "notes": "/v1/video/caption"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/ffmpeg/compose",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"id\": \"fade-in-out\",\n  \"inputs\": [\n    {\n      \"type\": \"video\",\n      \"file_url\": \"{{ $json.response[0].file_url }}\"\n    }\n  ],\n  \"filters\": [\n    {\n      \"filter\": \"[0:v]fade=t=in:st=0:d=0.5,fade=t=out:st={{ ($json.response[0].duration - 0.5).toFixed(1) }}:d=0.5[v]\"\n    }\n  ],\n  \"outputs\": [\n    {\n      \"options\": [\n        {\n          \"option\": \"-map\",\n          \"argument\": \"[v]\"\n        },\n        {\n          \"option\": \"-map\",\n          \"argument\": \"0:a\"\n        },\n        {\n          \"option\": \"-c:v\",\n          \"argument\": \"libx264\"\n        },\n        {\n          \"option\": \"-c:a\",\n          \"argument\": \"copy\"\n        }\n      ]\n    }\n  ],\n  \"metadata\": {\n    \"duration\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4860,
+        1040
+      ],
+      "id": "09f2f467-f6b5-40f2-9b7e-a841da86480e",
+      "name": "Add fade in & out",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/ffmpeg/compose",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"id\": \"concat-mp4-mp3-simple\",\n  \"inputs\": [\n    {\n      \"type\": \"video\",\n      \"file_url\": \"{{ $json.response }}\"\n    },\n    {\n      \"type\": \"audio\",\n      \"file_url\": \"http://host.docker.internal:9000/nca-toolkit/{{ $('Get necessary data for nca-toolkit').item.json.title.replaceAll(' ', '_') }}(story_{{ $('Get necessary data for nca-toolkit').item.json.row_number}})%2Faudio{{ $('Get necessary data for nca-toolkit').item.json.scene_num }}.mp3\"\n    }\n  ],\n  \"outputs\": [\n    {\n      \"options\": [\n        {\n          \"option\": \"-map\",\n          \"argument\": \"0:v\"\n        },\n        {\n          \"option\": \"-map\",\n          \"argument\": \"1:a\"\n        },\n        {\n          \"option\": \"-c:v\",\n          \"argument\": \"copy\"\n        },\n        {\n          \"option\": \"-c:a\",\n          \"argument\": \"aac\"\n        },\n        {\n          \"option\": \"-shortest\"\n        }\n      ]\n    }\n  ],\n  \"metadata\": {\n    \"duration\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4640,
+        1140
+      ],
+      "id": "aa87a114-c142-4424-9091-c99138fbbf90",
+      "name": "Merge the narration and the initial video",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/image/transform/video",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"image_url\":\"http://host.docker.internal:9000/nca-toolkit/{{ $('Get necessary data for nca-toolkit').item.json.title.replaceAll(\" \",\"_\") }}(story_{{ $('Get necessary data for nca-toolkit').item.json.row_number }})/image{{ $('Get necessary data for nca-toolkit').item.json.scene_num }}.jpeg\",\n    \"length\":{{ Number($json.response[0].duration).toPrecision(3) }},\n    \"frame_rate\": 25,\n    \"zoom_speed\": 2.5,\n    \"id\": \"local-extract\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4420,
+        1240
+      ],
+      "id": "e6706332-1028-4e76-b97c-5828f2b8c272",
+      "name": "Add zoom effect to image",
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      },
+      "notes": "/v1/image/transform/video"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4640,
+        1340
+      ],
+      "id": "ec13f28d-5df7-4991-ba3e-cbf55dd97b01",
+      "name": "Delete initial video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/ffmpeg/compose",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"id\": \"get-audio-duration\",\n  \"inputs\": [\n    {\n      \"file_url\": \"http://host.docker.internal:9000/nca-toolkit/{{ $json.title.replaceAll(\" \",\"_\") }}(story_{{ $json.row_number }})/audio{{ $json.scene_num }}.mp3\"\n    }\n  ],\n  \"filters\": [\n    {\n      \"filter\": \"[0:a]anull[a]\"\n    }\n  ],\n  \"outputs\": [\n    {\n      \"options\": [\n        {\n          \"option\": \"-map\",\n          \"argument\": \"[a]\"\n        },\n        {\n          \"option\": \"-c:a\",\n          \"argument\": \"aac\"\n        }\n      ]\n    }\n  ],\n  \"metadata\": {\n    \"duration\": true\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4200,
+        1340
+      ],
+      "id": "0c56cc36-edc0-484d-b87c-d4169e46802b",
+      "name": "Get narration duration",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4420,
+        1440
+      ],
+      "id": "6ead152f-92d4-4a14-a376-20ee69872cdd",
+      "name": "Delete audio temp file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4900,
+        1260
+      ],
+      "id": "1fd71644-cb3a-41cc-ba77-9b96940a3652",
+      "name": "Delete mp3 + video merged temp file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5080,
+        1140
+      ],
+      "id": "c8706feb-c204-4583-b706-9d9da060339a",
+      "name": "Delete temp fade video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5520,
+        940
+      ],
+      "id": "6e4ea98d-4b9e-4c0c-a36a-7504b1dc8bfb",
+      "name": "Delete temp captioned video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5520,
+        740
+      ],
+      "id": "edbeda2a-4a42-4b68-b1d5-a52b6306cc45",
+      "name": "Download temp Final scene video",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3960,
+        1340
+      ],
+      "id": "4c5a089c-3f0e-443a-85b4-7e6650baece1",
+      "name": "Get necessary data for nca-toolkit"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7ff9a074-e75c-472d-bb7a-dd21e68a108b",
+              "leftValue": "={{ $json.output.match(/[\"']result[\"']\\s*:\\s*[\"'](yes|no)[\"']/i)?.[1].toLowerCase() || \"\" }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3460,
+        1000
+      ],
+      "id": "6d4b6ba7-6b18-4b6c-a4e5-91b5e41676da",
+      "name": "Check VL model response"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Get data to store temp').item.json.genre.toLowerCase()}}",
+                    "rightValue": "mystery",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "242d0f67-fe79-470a-9596-53da2deaff13"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "mystery"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "53a6a955-fe96-4623-b461-93bfc4065511",
+                    "leftValue": "={{ $('Get data to store temp').item.json.genre.toLowerCase()}}",
+                    "rightValue": "drama",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "drama"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2680,
+        1120
+      ],
+      "id": "5e8c03cc-4c55-4760-becd-837cc606cb85",
+      "name": "Check which VL model to use"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "=/{{ $('Loop over scenes').item.json.title.replaceAll(\" \",\"_\") }}(story_{{ $('Loop over scenes').item.json.row_number }})/image{{ $('Loop over scenes').item.json.scene_num }}.jpeg",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        2340,
+        740
+      ],
+      "id": "16a07ef5-14f4-4be3-89db-66788ad46d3f",
+      "name": "Upload temp BG image for the scene",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {json: {output: $input.first().json.output}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1860,
+        760
+      ],
+      "id": "0124aaa5-241f-471f-9ab2-b0370c904392",
+      "name": "Format output JSON"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "432bfd2c-b579-4dbf-a778-82bd1048b1df",
+              "name": "Image_prompt",
+              "value": "={{ $json.Image_prompt }} ",
+              "type": "string"
+            },
+            {
+              "id": "24a7a6c8-7dcb-416a-a198-c24feb324e56",
+              "name": "scene_num",
+              "value": "={{ $json.scene_num }} ",
+              "type": "string"
+            },
+            {
+              "id": "b03470f3-9f4e-49ea-bfa6-63f10d06913d",
+              "name": "genre",
+              "value": "={{ $json.genre }} ",
+              "type": "string"
+            },
+            {
+              "id": "363eada3-b107-424b-9dcd-7cb513c728c0",
+              "name": "essential_parts",
+              "value": "={{ $json.essential_parts }} ",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        1260
+      ],
+      "id": "5367e2a4-6235-453f-a0f4-0aee396aba3c",
+      "name": "Get refined prompt"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4adb2d8a-ebe5-456e-a651-85ac46906041",
+              "name": "Image_prompt",
+              "value": "={{$json.output.parseJson().Image_prompt}}",
+              "type": "string"
+            },
+            {
+              "id": "ad0ee223-6c99-4557-af80-9fbcc37ae2f7",
+              "name": "scene_num",
+              "value": "={{$json.output.parseJson().scene_num}}",
+              "type": "string"
+            },
+            {
+              "id": "afa2f520-d3a3-474d-80cb-05e128043a96",
+              "name": "story_num",
+              "value": "={{$json.output.parseJson().story_num}}",
+              "type": "string"
+            },
+            {
+              "id": "08831a0e-249c-418c-bdfc-6a6252364e35",
+              "name": "story_title",
+              "value": "={{$json.output.parseJson().story_title}}",
+              "type": "string"
+            },
+            {
+              "id": "b4ea81dd-2eeb-4ec2-8a0a-022f62b174c1",
+              "name": "genre",
+              "value": "={{$json.output.parseJson().genre}}",
+              "type": "string"
+            },
+            {
+              "id": "73e99fc3-757d-4d4c-9756-5e44881c7710",
+              "name": "essential_parts",
+              "value": "={{$json.output.parseJson().essential_parts}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -100,
+        1400
+      ],
+      "id": "cba59b90-58b7-444a-8efa-5e1111f0aa8f",
+      "name": "Parse scene_data.txt content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ab26f3a-bf49-46c4-86f7-9ef5a3541251",
+              "name": "Image_prompt",
+              "value": "={{ $json.Image_prompt.replaceAll(\"\\\"\",\"'\") }}",
+              "type": "string"
+            },
+            {
+              "id": "eacf32a3-6daf-4462-af57-744c364b1950",
+              "name": "essential parts",
+              "value": "={{ $json.essential_parts }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1300,
+        1060
+      ],
+      "id": "a092a075-4bdf-47de-9d92-f894ac04f1f2",
+      "name": "Encode the prompt"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3725929-057c-4a81-ab0f-48fdd27862a2",
+              "name": "Image_prompt",
+              "value": "={{ $('Loop over scenes').item.json.prompt }}",
+              "type": "string"
+            },
+            {
+              "id": "8df248ec-2db5-440c-b15c-5cf3b389b1a2",
+              "name": "scene_num",
+              "value": "={{ $('Loop over scenes').item.json.scene_num }}",
+              "type": "number"
+            },
+            {
+              "id": "58d40a50-43cb-4141-a5f1-3eca04479c6a",
+              "name": "genre",
+              "value": "={{ $('Loop over scenes').item.json.genre }}",
+              "type": "string"
+            },
+            {
+              "id": "d982c785-9976-43c6-a672-808c5d4729c1",
+              "name": "essential_parts",
+              "value": "={{ $('Loop over scenes').item.json.essential_parts }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        1060
+      ],
+      "id": "5de4c987-4729-461f-868d-e652b484ff11",
+      "name": "Get data to store temp"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {output:{Image_prompt: $input.first().json.Image_prompt,scene_num:$input.first().json.scene_num, story_num:$('Loop over scenes').first().json.row_number,story_title:$('Loop over scenes').first().json.title, genre: $input.first().json.genre,essential_parts:$input.first().json.essential_parts}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        740
+      ],
+      "id": "c180d9d9-0e5e-424c-b7b8-0185c0ac43ba",
+      "name": "Format JSON to store"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1080,
+        740
+      ],
+      "id": "e36e2fb0-eedb-4cb8-b2f2-c1e1713c0e0a",
+      "name": "Convert temp JSON to file"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "/scene_data.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        640
+      ],
+      "id": "069aab12-78ae-4f47-a20c-b225e21aac2e",
+      "name": "Delete old temp scene_data",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "scene_data.txt",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        840
+      ],
+      "id": "ddc47bdd-e157-42d5-8d01-9b3044a6cecf",
+      "name": "Upload new temp scene_data",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -180,
+        2040
+      ],
+      "id": "0083fbc7-57e7-466b-bb02-61a8140f2dae",
+      "name": "Get required data to concat scenes"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "=/{{$('Get required data').item.json.story_title.replaceAll(\" \",\"_\")}}.txt",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        460,
+        2040
+      ],
+      "id": "ce6ded57-6fb9-4af4-81e7-2cdf6e0002f3",
+      "name": "Upload temp file to concat scenes",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "/scene_data.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        700,
+        2040
+      ],
+      "id": "e035a195-f8c5-4e9b-869a-3dadff97dc22",
+      "name": "Delete last temp scene_data",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "story_data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        2040
+      ],
+      "id": "e0e11ba2-4e6a-4064-8bbf-eff57d8488c6",
+      "name": "Convert temp JSON to file1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {json:{story_data:$input.all(),story_title:$input.first().json.title}};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        2040
+      ],
+      "id": "3bc54535-598b-4413-8300-a6bf2ac6af80",
+      "name": "Get required data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.freepik.com/v1/ai/text-to-image/flux-dev",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-freepik-api-key",
+              "value": "$Freepik_api_key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $json.prompt.trim().replaceAll(\"\\\"\",\"'\")}}\",\n  \"aspect_ratio\": \"social_story_9_16\",\n  \"styling\": {\n    \"effects\": {\n      \"color\": \"softhue\",\n      \"framing\": \"midshot\",\n      \"lightning\": \"dramatic\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -180,
+        -20
+      ],
+      "id": "744f3438-0c01-4c33-8a9f-ec5bbcf04ec4",
+      "name": "Request a picture from Freepik Flux",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        80
+      ],
+      "id": "ae60b0cf-9b5a-48da-9c7e-057d008dd416",
+      "name": "Wait for image generation",
+      "webhookId": "89217580-16ce-451a-b103-d438baf60311"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f9b3b54a-5d07-4e64-9c59-f823a740f38d",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "IN_PROGRESS",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "666628ff-d1e0-4985-845c-6d8b6f631551",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "CREATED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        140
+      ],
+      "id": "50810333-f7f7-425c-b154-1b823d6e696f",
+      "name": "Check request status"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.freepik.com/v1/ai/text-to-image/flux-dev/{{ $json.data.task_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-freepik-api-key",
+              "value": "$freepik_api_key"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        80
+      ],
+      "id": "ccb521c4-45f4-41cb-ba6b-3465f86e8ec5",
+      "name": "Request Image status"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.generated[0] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        140
+      ],
+      "id": "4741dfe8-6301-4f02-963f-591053720cf8",
+      "name": "Get the generated image",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "# ALTERNATIVE (Image Gen): FREEPIK FLUX MODEL",
+        "height": 600,
+        "width": 1400,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -180
+      ],
+      "typeVersion": 1,
+      "id": "2a9ce88a-be1c-486e-8196-04322a2d6971",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "/scene_data.txt",
+        "binaryPropertyName": "output"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1940,
+        1440
+      ],
+      "id": "56d91ab7-a923-4578-a5cd-a0f1477daf49",
+      "name": "Download temp scene data file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "output",
+        "destinationKey": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        1440
+      ],
+      "id": "8d693cd6-b8e3-4939-a363-7794c5f2e37d",
+      "name": "Extract scene data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/v1/ffmpeg/compose",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=\n  {\n  \"id\": \"upscale-to-1080x1920\",\n  \"inputs\": [\n    {\n      \"file_url\": \"{{ $json.response[0].file_url }}\"\n    }\n  ],\n  \"filters\": [\n    {\n      \"filter\": \"[0:v]scale=1080:1920[outv]\"\n    }\n  ],\n  \"outputs\": [\n    {\n      \"options\": [\n        { \"option\": \"-map\", \"argument\": \"[outv]\" },\n        { \"option\": \"-map\", \"argument\": \"0:a\" },\n        { \"option\": \"-c:v\", \"argument\": \"libx264\" },\n        { \"option\": \"-crf\", \"argument\": 18 },\n        { \"option\": \"-preset\", \"argument\": \"medium\" },\n        { \"option\": \"-c:a\", \"argument\": \"aac\" },\n        { \"option\": \"-b:a\", \"argument\": \"192k\" }\n      ]\n    }\n  ]\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5080,
+        940
+      ],
+      "id": "049e71e2-6606-49db-9ede-d069b87d34f4",
+      "name": "Change video Resolution to 1920x1080",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "MtS6h1aaRvIMZ9u1",
+          "name": "NCA toolkit cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "={{ $json.response[0].file_url.replace(\"http://host.docker.internal:9000/nca-toolkit\",\"\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        5300,
+        1040
+      ],
+      "id": "d62a9ea8-46d9-46f2-bdc2-7546cca58a34",
+      "name": "Delete temp Altered video resolutions",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2080,
+        1060
+      ],
+      "id": "1dd21bca-da18-4d93-afe0-b9848025fc60",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7ebd09e6-c3f5-4a99-9f7b-8778b3a8e5b5",
+              "leftValue": "={{$json.chatInput }}",
+              "rightValue": "/\\d+/",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1880,
+        1060
+      ],
+      "id": "b4810d73-68cf-4ff5-a807-b545998ceefa",
+      "name": "Check if there are scenes to change",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const scenes_to_change = $input.first().json.chatInput.match(/\\d+/g);\n\nconst all_scenes = $input.all();\n\nconst filtred_scenes = scenes_to_change.filter(num_scene=> Number(num_scene) <=all_scenes.length).map(scene_nbr=> all_scenes[Number(scene_nbr)-1]);\n\nreturn filtred_scenes"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1520,
+        1040
+      ],
+      "id": "a3e412cb-f0d5-45ae-86f0-6d6eebf50774",
+      "name": "Filter out the scenes to change"
+    },
+    {
+      "parameters": {
+        "content": "# 📢 IMPORTANT — READ BEFORE STARTING THE CHAT OR MANUAL TRIGGER\n\nThis workflow can be started in **two ways**:  \n- **Manual Trigger**  \n- **Chat Trigger**  \n\n##  Using the Manual Trigger\nIf you start the workflow using the **Manual Trigger**, it will **always** generate all scenes in order — starting from the first scene and ending with the last scene.\n\n\n## Using the Chat Trigger\nWhen starting via the **Chat Trigger**, you can control which scenes get re-generated based on whether you include scene numbers in your input:\n\n### **A. No numbers in your input**\nIf your input contains **no numbers**, the workflow will generate **all scenes** from first to last.  \n**Example inputs (generate all scenes):**\n- (no text)\n- hello world\n- scene generation\n\n\n### **B. Numbers in your input**\nIf your input contains **one or more numbers**, the workflow will re-generate **only those scenes matching the numbers**.  \nNumbers can be separated by spaces, commas, symbols, or mixed with words — the workflow will detect them automatically.\n\n**Example inputs (generate specific scenes):**\n- `1 2 3` → re-generates scenes **1, 2, and 3**  \n- `1_test_3` → re-generates scenes **1 and 3**  \n- `update23now` → re-generates scene **23**\n",
+        "height": 860,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5260,
+        500
+      ],
+      "typeVersion": 1,
+      "id": "1e205d9d-6245-4862-85c2-806fbef0bccd",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d3a0b6ea-54ca-4331-ada4-133b3210a24c",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2500,
+        1160
+      ],
+      "id": "d93810c8-d71b-4057-9327-89db704d7753",
+      "name": "Get inputed text",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.genre.toLowerCase() }}",
+                    "rightValue": "mystery",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "242d0f67-fe79-470a-9596-53da2deaff13"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "mystery"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "53a6a955-fe96-4623-b461-93bfc4065511",
+                    "leftValue": "={{ $json.genre.toLowerCase() }}",
+                    "rightValue": "drama",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "drama"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        860,
+        1060
+      ],
+      "id": "1999a150-1675-4a1f-be82-e0d4d5c8b49f",
+      "name": "routing based on story genre"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -4300,
+        1080
+      ],
+      "id": "15fd384e-91f5-4f44-a2f3-54dbfded7c65",
+      "name": "Re-generate scenes",
+      "webhookId": "12d87479-6516-4bbe-b66f-ef7ee81018c1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4300,
+        880
+      ],
+      "id": "045b3985-33fa-4352-ba4b-6d951378a9ab",
+      "name": "Generate from first to last scene"
+    },
+    {
+      "parameters": {
+        "content": "## Handling Errors (Rate Limits, Interruptions, or Connection Loss)\n\nIf an error occurs during generation (e.g., rate limit hit, network interruption, or lost connection), you can **resume from the last successfully generated scene** instead of restarting the whole process.\n\n### Steps to Recover:\n1. Identify the **last scene that was successfully generated**.  \n2. Open the chat.  \n3. Manually type the remaining scene numbers to continue generation until the final scene is reached.\n\n---\n\n### Example:\n- If the error happens at **scene 11** of a story with **15 scenes** total:  \n  - You should type in the chat:  \n    ```\n    11 12 13 14 15\n    ```\n",
+        "height": 420,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5260,
+        1400
+      ],
+      "typeVersion": 1,
+      "id": "4e0a87b7-f508-4080-8fd5-5748711e2bde",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "result.image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        1080
+      ],
+      "id": "b08a00d9-ec70-42c3-9283-cc577c3b360d",
+      "name": "Convert to File2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudflare.com/client/v4/accounts/$cloudflare_account_id/ai/run/@cf/black-forest-labs/flux-1-schnell",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer $cloudflare_api_token"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \n    \"prompt\": \"{{ $json.Image_prompt.replaceAll(\"\\\"\",\"'\").trim() }}\",\n    \"height\":1080,\n    \"width\":576,\n    \"steps\":1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        1080
+      ],
+      "id": "bec17f58-540b-4a8c-8cf0-e60e6f962468",
+      "name": "HTTP Request6",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3460,
+        1240
+      ],
+      "id": "59bc2fc5-11a0-4bcc-b64f-3310d42b37e8",
+      "name": "Give VL model a break (not hit Rate Limits)",
+      "webhookId": "ba6a9960-9364-41c3-a82a-236949dc41a4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1dd1fb1-a88b-4297-83ac-bc4de5b0e33d",
+              "name": "Image_prompt",
+              "value": "=Cinematic horror realism, dark noir atmosphere, dramatic chiaroscuro lighting, high contrast shadows, rim lighting, filmic grain {{$json.Image_prompt.replaceAll(\";\",\".\").replaceAll(\"\\\"\",\"'\")}}",
+              "type": "string"
+            },
+            {
+              "id": "4cf4f615-1292-4522-8e52-c6c339312153",
+              "name": "essential_parts",
+              "value": "={{$json.essential_parts}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1080,
+        960
+      ],
+      "id": "434500f3-7b64-4a4c-837e-5312ccf6e044",
+      "name": "Realistic Prompt Template (Mystery)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ab26f3a-bf49-46c4-86f7-9ef5a3541251",
+              "name": "Image_prompt",
+              "value": "=Cinematic drama realism, natural warm lighting, soft diffused shadows, soft realistic shading, and grounded color tones. {{$json.Image_prompt.replaceAll(\";\",\".\").replaceAll(\"\\\"\",\"'\")}}",
+              "type": "string"
+            },
+            {
+              "id": "9a339188-76ed-42a6-a6be-9d117450dc66",
+              "name": "essential_parts",
+              "value": "={{$json.essential_parts}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1080,
+        1160
+      ],
+      "id": "26362047-ae3d-445f-b869-f04f4c4b5da9",
+      "name": "Realistic Prompt Template (Drama)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Evaluate this image against the drama cinematic realism criteria. Return only {'result':'yes'} if all criteria are satisfied or {'result':'no','reason':'...'} if any fail.",
+        "options": {
+          "systemMessage": "=You are a visual content evaluation expert. Evaluate the provided image against these criteria. \nRespond only with {'result':'yes'} if all are met \nor {'result':'no','reason':'...'} if any fail.\n\nCriteria:\nContent:\nNo nudity, lingerie, sexual or suggestive poses.  \nIf present: \n{\"result\":\"no\",\"reason\":\"sexual or explicit content detected\"}\n\nArt Style:\nMust look like cinematic drama realism: accurate human anatomy, natural proportions.\nIf not: \n{\"result\":\"no\",\"reason\":\"art style criteria not met\"}\n\nProportions:\nCharacters must have natural, proportional anatomy. Exaggerated, cartoonish, or distorted proportions (e.g., oversized heads, tiny limbs) are forbidden. If violated: \n{\"result\":\"no\",\"reason\":\"disproportionate or distorted character anatomy\"}\n\nScene Logic:\nScenes must be visually coherent and logically structured. Characters, objects, and environments should appear physically possible and naturally integrated (no floating objects, people fused into walls, or nonsensical distortions).  \nEveryday distortions or surreal effects are not allowed.  \nIf violated: \n{\"result\":\"no\",\"reason\":\"scene contains illogical or incoherent visual elements\"}\n\nStyle Maturity:\nArt style must appear mature and serious, aligned with grounded drama tone. Childish, playful, or overly cartoony styles are not allowed.  \nIf not: \n{\"result\":\"no\",\"reason\":\"childish or juvenile art style detected\"}\n\nFaces:\nFaces must reflect natural human expressions appropriate for drama. Overly exaggerated, cartoonish, or goofy expressions are not acceptable.  \nIf violated: \n{\"result\":\"no\",\"reason\":\"facial expression/style inconsistent with drama tone\"}\n\nFinal Rule:\nReturn {\"result\":\"yes\"} only if all criteria are satisfied.",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3000,
+        1300
+      ],
+      "id": "c94f2316-42e5-4850-8d81-4156b8b0ad75",
+      "name": "Google VL model to check Realistic Drama story1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3080,
+        1120
+      ],
+      "id": "39e54740-59d4-42b9-87f6-c054a15010f4",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NWChq5dUaX00D8C9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=user prompt: \nStory Input: {{ $json.content }}  \nTask: Split into 17–25 sequential horror scenes for YouTube/TikTok. Use the full script with no cuts. Each scene must include the exact narration text.\n\n+ STYLE RULES\n- Word Count: Each scene description must strictly be between 70–90 words.\n- Style: Factual, mature, realistic proportions, subdued expressions, defined bone structure. Avoid cuteness vocabulary, especially for children. No anime-style exaggerations.\n- Horror Feel: Scenes must consistently project a sense of deterioration, unease, and oppressive atmosphere. The world should feel aged, unsettled, and unstable, with settings that appear worn down rather than pristine. Avoid scent and sound cues. Avoid pure black or pure white; instead, rely on softened or muted tones that suggest faded light and shadow, maintaining a subdued, unsettling quality throughout.\n\n+ CHARACTER LIMITS\n- Maximum one lead character per scene unless crowd/fillers present.\n- In each scene, determine which character is the most relevant based on action, importance, or contribution to the moment.\n- Do not forcefully override or exclude characters — instead, highlight whichever one naturally drives the scene forward.  \n    \n\n+ CHARACTERS\n- Every leading character of the scene must be reintroduced in the exact fixed trait sequence as plain inline text (not as labeled or colon-separated fields).\n- Do not use labels like \"age:\", \"gender:\", \"hair:\", \"clothing:\", etc. Instead, include values in this exact order inside the scene block as prose:\nEvery visible character must be fully reintroduced in exact fixed trait order:  \nage: [X] year old  \ngender: [man/woman/boy/girl]\nhair: [hair description (Defined style that is simple, and easy to reproduce consistently across images. Avoid complex hairstyles, elaborate cuts, or anything with multiple components. No commas) (Use only one-worded colors—no complex, compound, or multi-word colors at all)]\n- For men/boys → short [color] hair [Combed back / parted to the [side: left or right] / Straight cut]\nHair must always be short and use one of these exact, simple styles to ensure the image generation model can replicate it reliably every time.\n\n- For women/girls → [Use simple hairstyle with clear texture and direction, easy to reproduce consistently].\neyes: [eye color (only the eye color and no mention of any other adjective or shape or anything else)] eyes  \nclothing: [clothing description (at least 2-3 pieces of clothes) with palette (Use only one worded colors clothing and no complex colors or compound/multi-word colors at all)]  \ndistinctive marks: (only if story-serving; omit decorative marks)\n\n+ CONSISTENCY RULE  \n    Once a character’s inline trait phrase is introduced, it must remain word-for-word identical in every scene where that character appears.\n    \n+ PROMPT STRUCTURE\n- Each scene must be a single continuous descriptive block of text.\n- Each scene follows this exact order in one continuous block:  \n    character (full trait block) → environment & action combined\n- Do not break or label blocks (no \"action:\", \"place:\", \"character:\", etc.).\n- No colon-labeled trait fragments allowed   \n\n+ SUSPENSE RULE\n- If the story has not yet revealed the antagonist, monster, or figure, do not describe it. Maintain suspense and describe only what the character perceives or what the script permits. Once the story reveals the figure, then it can be visually described.\n    \n\n+ RETURN FORMAT  \n    Return JSON only:\n\n{ \"genre\": \"mystery\",  \n\"scenes\": [  \n{  \n\"scene_num\": 1,  \n\"story_part\": \"Exact portion of script here\",  \n\"prompt\": \"Scene description here\"\n}  \n]  \n}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Generate 17–25 horror scenes in JSON format for video storytelling.\n\nPRIORITY HIERARCHY\n+ CHARACTER CONSISTENCY\n- Each character’s traits must appear in every scene they are visible, as plain inline text in prose, never as labeled blocks.\n- Always include exact fixed trait list in strict order:  \n    [age] [gender], [facial hair] (men only), [hair description], [eye color] eyes, [clothing description (with a palette)], [distinctive features if story-serving].\n- All traits must appear every time, even if repetitive.\n- Once introduced, character description must not change or be rephrased in later scenes.\n- Distinctive marks only if they serve the story purpose (not decorative but it should be something that serves the story in whole)\n- Traits must always match the character's age to prevent drift and remain easy for models to replicate consistently.\n\n+ ENVIRONMENT (Place / Surroundings) & ACTION (Character Interaction)\n- Description flows as a single, integrated experience — the space reveals itself _through_ the character's engagement with it, and the character's presence is inseparable from the surroundings.\n- Begin anywhere that feels natural: a sensation, a sound, a texture underfoot, a shift in light, or the character's breath catching. There is no required order.\n- Alternate fluidly between spatial details and physical interaction. The setting emerges _as_ the character moves through it, touches it, disturbs it, or reacts to it.\n- Architectural features, objects, lighting, and atmosphere are described _in relation_ to what the character is doing — reaching toward a doorframe, stepping over debris, noticing decay as they brush past a wall.\n- Props and objects only appear when touched, examined, followed, or avoided. They don't exist in abstract description — they exist because the character encounters them.\n- The hostile, abandoned, or unsettling quality of the space is felt through the character's physical and psychological response: hesitation before a threshold, the strain of moving through thick air, the frantic search for light, the recoil from a surface.\n- Psychological weight and environmental dread are inseparable. A character's cautious breath, trembling hand, or frozen stance _is_ the horror of the space. The space's wrongness _is_ the character's unease.\n- Maintain tension by layering: a sound heard while kneeling in soil, a shadow seen while writing on glass, cold air felt while following footprints. Every moment contains both place and presence.\n\n+ SUSPENSE RULE\n- Antagonists, monsters, or mysterious figures must never be described unless the story script explicitly reveals them. Before revelation, build suspense through atmosphere, perception, or indirect hints only. Once revealed, describe the figure clearly.\n\n+ FORMAT and STYLE\n- One continuous prose block per scene, no labeled sections, no `key:` fragments.\n- Tone: factual, mature.\n- Word count: 70–90 words per scene. Do not shorten the inline trait phrase; trim environment first if needed.\n\n+ HORROR\n- Always reinforce the atmosphere of fear, unease, and cinematic tension.\n- Descriptions should emphasize unsettling details, ominous settings, and atmospheric contrasts that build dread.\n- Use lighting, environment, and sensory cues to heighten the horror mood, ensuring the overall scene feels haunting and immersive.\n\n+ CHARACTER LIMITS\n- One lead character per scene unless crowd/fillers are required.\n\n+ PROMPT STRUCTURE:\n- Always in this order: character (full trait block) → environment & action combined\n- no labeled sections like: \"character:..... place:.......\"\n\n+ FORBIDDEN\n- Any colon-style labels in scene text (e.g., \"age:\", \"shot type:\", \"place:\", \"action:\", \"hair:\").\n- Words like “pristine,” “perfect,” “clean,” “inviting,” “comfortable,” “bright,” “cheerful,” “cozy,” “cute,” “adorable,” “sweet.” ...etc\n\n+ GENRE: Always \"mystery\"."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -2940,
+        920
+      ],
+      "id": "8af0600d-ef23-4cf1-b81f-e03929c77392",
+      "name": "Split the Story into Scenes (Mystery)"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Story Input: {{ $json.content }}\nTask: Split into 17–25 sequential drama scenes for YouTube/TikTok. Use the full script with no cuts. Each scene must include the exact narration text.\n\nSTYLE RULES:\n+ Word Count: Each scene description must strictly be between 70–90 words.\n\n+ STYLE: \nFactual, mature, realistic proportions, natural expressions, defined features. Avoid exaggerated cuteness, especially for children. no anime-style exaggeration, or unrealistic distortions.\n\n+ DRAMA FEEL: \nScenes must consistently project a sense of lived-in authenticity, emotional weight, and grounded realism. The world should feel inhabited, worn by everyday use, and marked by the passage of time—spaces show natural aging rather than artificial perfection. Avoid scent and sound cues. Avoid overly saturated colors or theatrical lighting; instead, rely on natural, ambient tones that suggest real daylight, overcast skies, or practical indoor lighting. Settings should feel mundane yet intimate: coffee-stained tables, creased fabrics, scuffed floors, and small personal details that hint at the lives lived within these spaces, maintaining a subtle, emotionally resonant quality throughout.\n\n+ CHARACTER LIMITS: \n- Maximum one lead character per scene unless crowd/fillers present.\n- In each scene, determine which character is the most relevant based on action, importance, or contribution to the moment.\n- Do not forcefully override or exclude characters — instead, highlight whichever one naturally drives the scene forward.\n\n+ CHARACTERS:\n- Every leading character of the scene must be reintroduced in the exact fixed trait sequence as plain inline text (not as labeled or colon-separated fields).\n- Do not use labels like \"age:\", \"gender:\", \"hair:\", \"clothing:\", etc. Instead, include values in this exact order inside the scene block as prose:\nEvery visible character must be fully reintroduced in exact fixed trait order:  \nage: [X] year old  \ngender: [man/woman/boy/girl]\nhair: [hair description (Defined style that is simple, and easy to reproduce consistently across images. Avoid complex hairstyles, elaborate cuts, or anything with multiple components. No commas) (Use only one-worded colors—no complex, compound, or multi-word colors at all)]\n- For men/boys → short [color] hair [Combed back / parted to the [side: left or right] / Straight cut]\nHair must always be short and use one of these exact, simple styles to ensure the image generation model can replicate it reliably every time.\n- For women/girls → [Use simple hairstyle with clear texture and direction, easy to reproduce consistently].\neyes: [eye color (only the eye color and no mention of any other adjective or shape or anything else)] eyes  \nclothing: [clothing description (at least 2-3 pieces of clothes) with palette (Use only one worded colors clothing and no complex colors or compound/multi-word colors at all)]  \ndistinctive marks: (only if story-serving; omit decorative marks)\n\n+ CONSISTENCY RULE: Once a character’s inline trait phrase is introduced, it must remain word-for-word identical in every scene where that character appears.\n\n+ PROMPT STRUCTURE\n- Each scene must be a single continuous descriptive block of text.\n- Each scene follows this exact order in one continuous block:  \n    character (full trait block) → environment & action combined\n- Do not break or label blocks (no \"action:\", \"place:\", \"character:\", etc.).\n- No colon-labeled trait fragments allowed  \n    \n+ RETURN FORMAT  \n    Return JSON only:\n{ \"genre\": \"drama\",  \n\"scenes\": [  \n{  \n\"scene_num\": 1,  \n\"story_part\": \"Exact portion of script here\",  \n\"prompt\": \"Scene description here\"\n}  \n]  \n}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Generate 17–25 drama scenes in JSON format for video storytelling.\n\nPRIORITY HIERARCHY:\n+ CHARACTER CONSISTENCY\n- Each character’s traits must appear in every scene they are visible, as plain inline text in prose, never as labeled blocks.\n- Always include exact fixed trait list in strict order:  \n    [age] [gender], [facial hair] (men only), [hair description], [eye color] eyes, [clothing description (with a palette)], [distinctive features if story-serving].\n- All traits must appear every time, even if repetitive.\n- Once introduced, character description must not change or be rephrased in later scenes.\n- Distinctive marks only if they serve the story purpose (not decorative but it should be something that serves the story in whole)\n- Traits must always match the character's age to prevent drift and remain easy for models to replicate consistently.\n\n+ ENVIRONMENT (Place / Surroundings) & ACTION (Character Interaction)\n- Description flows as a single, integrated experience — the space reveals itself through the character's engagement with it, and the character's presence is inseparable from the surroundings.\n- Begin anywhere that feels natural: a sensation, a mundane sound, a texture underfoot, a shift in light, or the character's breath settling. There is no required order.\n- Alternate fluidly between spatial details and physical interaction. The setting emerges as the character moves through it, touches it, inhabits it, or responds to it.\n- Architectural features, objects, lighting, and atmosphere are described in relation to what the character is doing — leaning against a doorframe, adjusting furniture, noticing wear as they trace a familiar surface.\n- Props and objects only appear when touched, examined, used, or acknowledged. They don't exist in abstract description — they exist because the character encounters them.\n- The lived-in, personal, or emotionally charged quality of the space is felt through the character's physical and emotional response: pause before entering a meaningful room, the comfort or discomfort of settling into a chair, the automatic reach for something familiar, the avoidance of a painful reminder.\n- Emotional weight and environmental intimacy are inseparable. A character's steadying breath, fidgeting hand, or lingering gaze is the emotional charge of the space. The space's significance is the character's inner state.\n- Maintain resonance by layering: a voice heard while washing dishes, a photograph noticed while packing, warm light felt while sitting in silence. Every moment contains both place and presence.\n\n+ ENVIRONMENT CONSISTENCY (Recurrent Places & Objects)\n- When the story involves repeated interaction with the same location, room, corridor, or object across multiple scenes, its description must remain visually and spatially consistent. Features such as architecture, layout, textures, and recognizable props must reappear unchanged unless the story itself establishes their damage, alteration, or removal.\n- Consistency applies to both static elements (walls, doors, furniture, corridors, outdoor landmarks) and movable but persistent props (a lantern carried across rooms, a broken chair, a cracked window). These must not shift form or vanish between scenes unless logically explained by the narrative.\n\n+ FORMAT and STYLE\n- One continuous prose block per scene, no labeled sections, no `key:` fragments.\n- Tone: factual, mature.\n- Word count: 70–90 words per scene. Do not shorten the inline trait phrase; trim environment first if needed.\n\n+ DRAMA\n- Always reinforce the atmosphere of emotional authenticity, human connection, and cinematic intimacy.\n- Descriptions should emphasize meaningful details, relatable settings, and atmospheric nuances that build emotional resonance.\n- Use lighting, environment, and visual cues to heighten the dramatic mood, ensuring the overall scene feels grounded and immersive.\n\n\n+ CHARACTER LIMITS\n- One lead character per scene unless crowd/fillers are required.\n\n+ PROMPT STRUCTURE:\n- Always in this order: character (full trait block) → environment & action combined\n- no labeled sections like: \"character:..... place:.......\"\n\n+ FORBIDDEN\n- Any colon-style labels in scene text (e.g., \"age:\", \"shot type:\", \"place:\", \"action:\", \"hair:\").\n- Words like “pristine,” “perfect,” “clean,” “inviting,” “comfortable,” “bright,” “cheerful,” “cozy,” “cute,” “adorable,” “sweet.” ...etc\n\nGENRE: Always \"drama\"."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -2940,
+        1260
+      ],
+      "id": "349c60d9-bffc-4f7d-9ec5-2aa64afcd986",
+      "name": "Split the Story into Scenes (Drama)"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -2940,
+        1080
+      ],
+      "id": "35652354-dcd9-42d2-bb99-be6e4c7d8bb6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NWChq5dUaX00D8C9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"genre\": \"mystery\",\n    \"scenes\": [\n      {\n        \"scene_num\": 1,\n        \"story_part\": \"\",\n        \"prompt\": \"\"\n      }\n    ]\n  }"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -2780,
+        1080
+      ],
+      "id": "8fa3ad6d-d7ec-4ca4-9b7e-01b58bba3519",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"genre\": \"drama\",\n    \"scenes\": [\n      {\n        \"scene_num\": 1,\n        \"story_part\": \"\",\n        \"prompt\": \"\"\n      }\n    ]\n  }"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -2780,
+        1440
+      ],
+      "id": "523eaf53-cc2a-4595-ba41-4756720c04ea",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Evaluate this image against the horror cinematic realism criteria. Return only {'result':'yes'} if all criteria are satisfied or {'result':'no','reason':'...'} if any fail.",
+        "options": {
+          "systemMessage": "=You are a visual content evaluation expert. Evaluate the provided image against these criteria. \nRespond only with {'result':'yes'} if all are met \nor {'result':'no','reason':'...'} if any fail.\n\nCriteria:\nContent:\nNo nudity, lingerie, sexual or suggestive poses.  \nIf present:\n{\"result\":\"no\",\"reason\":\"sexual or explicit content detected\"}\n\nArt Style:\nMust look like cinematic horror realism: natural human anatomy, realistic proportions  \nIf not: \n{\"result\":\"no\",\"reason\":\"art style criteria not met\"}\n\nProportions:\nCharacters must have natural, proportional anatomy. Exaggerated or cartoonish proportions (e.g., oversized heads, tiny legs, distorted limbs) are forbidden. If violated: \n{\"result\":\"no\",\"reason\":\"disproportionate or distorted character anatomy\"}\n\nScene Logic:\nScenes must be visually coherent and logically structured. Characters, objects, and environments should appear physically possible and properly integrated (no random floating objects, fused body parts, or nonsensical distortions).  \nHorror distortions (e.g., grotesque mutations, unnatural anatomy, surreal shadows) are acceptable only if they are intentional and contextually fitting to a horror atmosphere.  \nIf not: \n{\"result\":\"no\",\"reason\":\"scene contains illogical or incoherent visual elements\"}\n\nStyle Maturity:\nStyle must appear serious and unsettling, aligned with horror tone — not childish, playful, or cartoonish.  \nIf not:\n{\"result\":\"no\",\"reason\":\"childish or juvenile art style detected\"}\n\nFaces:\nFaces must not appear overly cheerful, cartoonish, or stylistically inconsistent with the horror mood.  \nIf violated: \n{\"result\":\"no\",\"reason\":\"facial expression/style breaks horror tone\"}\n\nFinal Rule:\nReturn {\"result\":\"yes\"} only if all criteria are satisfied.",
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3000,
+        900
+      ],
+      "id": "20e4d676-72dc-4ef1-9575-70d4a64ef345",
+      "name": "Google VL model to check Realistic Mystery story",
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get the first unused story": {
+      "main": [
+        [
+          {
+            "node": "Download story_data from MinIO",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get the temp story folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge needed data1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Download story_data from MinIO": {
+      "main": [
+        [
+          {
+            "node": "Extract Story data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Checking the story genre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Story data": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON file": {
+      "main": [
+        [
+          {
+            "node": "Split the scenes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge needed data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split the scenes": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Data": {
+      "main": [
+        [
+          {
+            "node": "Download story_data file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get required data to concat scenes",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge needed data1": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create the story folder": {
+      "main": [
+        [
+          {
+            "node": "Create story parts folder inside the story folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the temp story folder": {
+      "main": [
+        [
+          {
+            "node": "Check if temp story folder exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if temp story folder exists": {
+      "main": [
+        [
+          {
+            "node": "Create the story folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download story_data file": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Format output JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert JSON to file": {
+      "main": [
+        [
+          {
+            "node": "Upload story_data.txt to MinIO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over scenes": {
+      "main": [
+        [
+          {
+            "node": "Get required data to concat scenes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get necessary data for nca-toolkit",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Generate speech /w local kokoro tts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete old scene BG Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate speech /w local kokoro tts": {
+      "main": [
+        [
+          {
+            "node": "Upload speech mp3 to MinIO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete old scene BG Image": {
+      "main": [
+        [
+          {
+            "node": "Get data to store temp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking the story genre": {
+      "main": [
+        [
+          {
+            "node": "Split the Story into Scenes (Mystery)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split the Story into Scenes (Drama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Caption the video": {
+      "main": [
+        [
+          {
+            "node": "Delete temp captioned video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download temp Final scene video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add fade in & out": {
+      "main": [
+        [
+          {
+            "node": "Delete temp fade video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Change video Resolution to 1920x1080",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge the narration and the initial video": {
+      "main": [
+        [
+          {
+            "node": "Add fade in & out",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete mp3 + video merged temp file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add zoom effect to image": {
+      "main": [
+        [
+          {
+            "node": "Merge the narration and the initial video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete initial video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get narration duration": {
+      "main": [
+        [
+          {
+            "node": "Add zoom effect to image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete audio temp file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete audio temp file": {
+      "main": [
+        [
+          {
+            "node": "Loop over scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download temp Final scene video": {
+      "main": [
+        [
+          {
+            "node": "Upload final scene video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get necessary data for nca-toolkit": {
+      "main": [
+        [
+          {
+            "node": "Get narration duration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check VL model response": {
+      "main": [
+        [
+          {
+            "node": "Get necessary data for nca-toolkit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Give VL model a break (not hit Rate Limits)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check which VL model to use": {
+      "main": [
+        [
+          {
+            "node": "Google VL model to check Realistic Mystery story",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google VL model to check Realistic Drama story1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format output JSON": {
+      "main": [
+        [
+          {
+            "node": "Convert JSON to file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get refined prompt": {
+      "main": [
+        [
+          {
+            "node": "routing based on story genre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse scene_data.txt content": {
+      "main": [
+        [
+          {
+            "node": "Delete a file4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get refined prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Encode the prompt": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get data to store temp": {
+      "main": [
+        [
+          {
+            "node": "Format JSON to store",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "routing based on story genre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format JSON to store": {
+      "main": [
+        [
+          {
+            "node": "Convert temp JSON to file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert temp JSON to file": {
+      "main": [
+        [
+          {
+            "node": "Upload new temp scene_data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete old temp scene_data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get required data to concat scenes": {
+      "main": [
+        [
+          {
+            "node": "Get required data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload temp file to concat scenes": {
+      "main": [
+        [
+          {
+            "node": "Delete last temp scene_data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert temp JSON to file1": {
+      "main": [
+        [
+          {
+            "node": "Upload temp file to concat scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get required data": {
+      "main": [
+        [
+          {
+            "node": "Convert temp JSON to file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request a picture from Freepik Flux": {
+      "main": [
+        [
+          {
+            "node": "Wait for image generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for image generation": {
+      "main": [
+        [
+          {
+            "node": "Request Image status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check request status": {
+      "main": [
+        [
+          {
+            "node": "Wait for image generation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get the generated image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Image status": {
+      "main": [
+        [
+          {
+            "node": "Check request status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download temp scene data file": {
+      "main": [
+        [
+          {
+            "node": "Extract scene data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract scene data": {
+      "main": [
+        [
+          {
+            "node": "Parse scene_data.txt content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change video Resolution to 1920x1080": {
+      "main": [
+        [
+          {
+            "node": "Caption the video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete temp Altered video resolutions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Check if there are scenes to change",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if there are scenes to change": {
+      "main": [
+        [
+          {
+            "node": "Filter out the scenes to change",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop over scenes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop over scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter out the scenes to change": {
+      "main": [
+        [
+          {
+            "node": "Loop over scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get inputed text": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "routing based on story genre": {
+      "main": [
+        [
+          {
+            "node": "Realistic Prompt Template (Mystery)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Realistic Prompt Template (Drama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-generate scenes": {
+      "main": [
+        [
+          {
+            "node": "Get the first unused story",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get inputed text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate from first to last scene": {
+      "main": [
+        [
+          {
+            "node": "Get the first unused story",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Convert to File2": {
+      "main": [
+        [
+          {
+            "node": "Upload temp BG image for the scene",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check which VL model to use",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Convert to File2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download temp scene data file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Give VL model a break (not hit Rate Limits)": {
+      "main": [
+        [
+          {
+            "node": "Download temp scene data file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Realistic Prompt Template (Mystery)": {
+      "main": [
+        [
+          {
+            "node": "Encode the prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Realistic Prompt Template (Drama)": {
+      "main": [
+        [
+          {
+            "node": "Encode the prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google VL model to check Realistic Drama story1": {
+      "main": [
+        [
+          {
+            "node": "Check VL model response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Give VL model a break (not hit Rate Limits)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Google VL model to check Realistic Mystery story",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Google VL model to check Realistic Drama story1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split the Story into Scenes (Mystery)": {
+      "main": [
+        [
+          {
+            "node": "Merge needed data1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split the scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split the Story into Scenes (Drama)": {
+      "main": [
+        [
+          {
+            "node": "Merge needed data1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split the scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Split the Story into Scenes (Mystery)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Split the Story into Scenes (Drama)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Split the Story into Scenes (Mystery)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Split the Story into Scenes (Drama)",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google VL model to check Realistic Mystery story": {
+      "main": [
+        [
+          {
+            "node": "Check VL model response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Give VL model a break (not hit Rate Limits)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a1f7c91a-1247-4d35-aa64-a0f96c043e47",
+  "meta": {
+    "instanceId": "aa02f91765655e9392e3b75ce8731df7653a09e5799bd530306e1a97fbd5936c"
+  },
+  "id": "BJBeMO1qIZNuDrej",
+  "tags": []
+}

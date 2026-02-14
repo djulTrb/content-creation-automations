@@ -1,0 +1,1183 @@
+{
+  "name": "Part 02 - Format those stories into video scripts",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# WORKFLOW II : FORMAT THOSE STORIES INTO SHORT-VIDEO SCRIPTS.",
+        "height": 1420,
+        "width": 4360,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -180,
+        120
+      ],
+      "typeVersion": 1,
+      "id": "140dc4fb-a3e8-4b89-a639-11214db0943b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2200,
+        700
+      ],
+      "id": "b19db255-eaef-4f89-9cef-790b30959026",
+      "name": "Merge4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "304361a3-a1b2-4d3d-8c21-d4d32a4b46cb",
+              "leftValue": "={{ $json.responseContent.responseContent }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "ec024ac4-8545-4ae7-8779-7c311f3a24af",
+              "leftValue": "={{ Boolean($json.error) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "d1d4ebe4-8d79-4c79-86f8-631c3f70939f",
+              "leftValue": "={{ $json.output.parseJson().responseTitle }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1900,
+        540
+      ],
+      "id": "86585231-bc2c-4042-8f21-9fdc524719b5",
+      "name": "check if both conditions are met (title + content)"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        1340
+      ],
+      "id": "f1cdbbaa-e4e0-4a34-bcd0-2b0e07a632c7",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "jyLJK8Jc701Y3nYU",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"responseTitle\": \"\"  \n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1500,
+        1320
+      ],
+      "id": "0454170f-4eb0-4f51-8550-8169496c92be",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2800,
+        660
+      ],
+      "id": "a98313c9-0916-442c-82f4-df0cbb52f12c",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1680,
+        540
+      ],
+      "id": "7b80e0a1-df3d-485d-ba60-a74d35c1d0de",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a strict content filter.\nYour job is to analyze the input title of a Reddit story and determine whether it implies the story is a part or continuation of another.\n\nReturn \"no\" if the title suggests it's part of a series or sequel (e.g., \"Part 2\", \"Pt. 1\", \"Chapter 3\", \"continued\", \"next part\", \"to be continued\", etc.).\nOtherwise, return \"yes\".\n\nOutput ONLY this JSON:\n{\n  \"responseTitle\": \"yes\"  \n}\nor\n{\n  \"responseTitle\": \"no\"  \n}\nDo not explain. Do not include any extra formatting. Return only the JSON.\n\nTitle to check:\n{{ $json.title }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        1080
+      ],
+      "id": "71b53b9c-40a6-4b46-9c1f-e0265dce18e5",
+      "name": "Check if the title is not a Suggesting that it is a sequel",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        1020
+      ],
+      "id": "fadebfad-c577-4c24-9e6a-bcaf92800e7c",
+      "name": "Format the given story"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI",
+          "mode": "list",
+          "cachedResultName": "reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 119903028,
+          "mode": "list",
+          "cachedResultName": "sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI/edit#gid=119903028"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_story": "={{ $json.id_story }}",
+            "used before": "yes"
+          },
+          "matchingColumns": [
+            "id_story"
+          ],
+          "schema": [
+            {
+              "id": "id_story",
+              "displayName": "id_story",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "subreddit",
+              "displayName": "subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "used before",
+              "displayName": "used before",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2480,
+        820
+      ],
+      "id": "d6d42531-1203-441f-a972-bb7071a83b32",
+      "name": "Update story column to used before = \"yes\"",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI",
+          "mode": "list",
+          "cachedResultName": "reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 119903028,
+          "mode": "list",
+          "cachedResultName": "sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI/edit#gid=119903028"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_story": "={{ $json.data }}",
+            "used before": "yes"
+          },
+          "matchingColumns": [
+            "id_story"
+          ],
+          "schema": [
+            {
+              "id": "id_story",
+              "displayName": "id_story",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "subreddit",
+              "displayName": "subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "used before",
+              "displayName": "used before",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        3680,
+        660
+      ],
+      "id": "ec1d76e7-71f6-4565-86dd-0ca97535bb5f",
+      "name": "Update used story column : used before = \"yes\"",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ",
+          "mode": "list",
+          "cachedResultName": "formatted reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 188069496,
+          "mode": "list",
+          "cachedResultName": "sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lBsUC25dJhxNfhz4YPE11J-dI6sEmId_EL77gGPjXJQ/edit#gid=188069496"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "published": "no",
+            "used before": "no",
+            "id_story": "={{ $json.id_story }}",
+            "title": "={{ $json.storyTitle }}",
+            "url": "={{ $json.url }}",
+            "subreddit": "={{ $json.subreddit }}",
+            "content": "={{ $json.script }}",
+            "genre": "={{ $json.genre }}"
+          },
+          "matchingColumns": [
+            "id_story"
+          ],
+          "schema": [
+            {
+              "id": "id_story",
+              "displayName": "id_story",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subreddit",
+              "displayName": "subreddit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "used before",
+              "displayName": "used before",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "published",
+              "displayName": "published",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "genre",
+              "displayName": "genre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        3020,
+        660
+      ],
+      "id": "118cabfe-5ce0-4b9b-9590-b986d3769f59",
+      "name": "Append a row in formatted reddit stories sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI",
+          "mode": "list",
+          "cachedResultName": "reddit stories",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 119903028,
+          "mode": "list",
+          "cachedResultName": "sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ww3NYkVzIMOmzSihZpJ_uf6kZn_i46iJHP3q6oRrnDI/edit#gid=119903028"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "used before",
+              "lookupValue": "no"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        440,
+        1020
+      ],
+      "id": "506cfd4b-ae55-4147-a12a-9be17810c1d3",
+      "name": "Get first unused story",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GQPXvZnn3SJPuQhL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5afe903f-fe25-43c6-b68e-b3025835bb3e",
+              "name": "id",
+              "value": "={{ $json.id_story }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1100,
+        240
+      ],
+      "id": "aa0e6a31-15a4-4d1a-8d43-d0f77130aa79",
+      "name": "Get the story id"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        240
+      ],
+      "id": "b3a9cebf-55ef-4cfc-a95b-03a6bb43fda9",
+      "name": "Convert into txt file"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "nca-toolkit",
+        "fileName": "story_id.txt",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        240
+      ],
+      "id": "ebc93b7e-55be-4b5b-9d11-a910f65d7879",
+      "name": "Upload id file to MinIO",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "story_id.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        2920,
+        1100
+      ],
+      "id": "c48de174-66d6-49f8-90fc-247f6a0b1a1a",
+      "name": "Delete Id file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Rewrite the following story into a narration script for short-form video using the rules below.\nCRITICAL: Your response must be ONLY valid JSON. No explanations, no markdown formatting, no code blocks, no additional text before or after. Just the raw JSON object.\n\nThe rewritten script must:\n\nBe a single narration block designed for TTS voice-over with smooth scene transitions\n\nBegin with a powerful hook chosen from the genre-specific list below\n\nBe between 180 and 220 words exactly (STRICTLY ENFORCED)\n\nUse only commas and periods for punctuation\n\nUse clear and simple language, never poetic or abstract\n\nKeep a third-person storytelling tone (never first-person POV)\n\nPreserve all main events and pacing from the original story\n\nInclude subtle transition cues for visual scene changes\n\nHooks:\n\nMystery hooks (pick one at random):\n\n\"In Japan...\"\n\n\"In 1956...\"\n\n\"They say...\"\n\n\"On a stormy night...\"\n\n\"Deep inside the woods...\"\n\n\"Near the abandoned tracks...\"\n\n\"Some claim the truth was never found...\"\n\nDrama hooks (pick one at random):\n\n\"At a crowded wedding...\"\n\n\"During a late shift at work...\"\n\n\"At the family dinner table...\"\n\n\"When the neighbors gathered...\"\n\n\"One afternoon in the park...\"\n\n\"In the middle of class...\"\n\n\"During a birthday celebration...\"\n\nStory:\n{{ $('Clean any special characters').item.json.formatedStory }}\n\nReturn format (exact structure required):\n{\n\"script\": \"Final narration script with simple storytelling tone and scene transitions\",\n\"storyTitle\": \"A short, compelling title\",\n\"genre\": \"mystery or drama\"\n}",
+        "options": {
+          "systemMessage": "=You are a professional TTS scriptwriter and audio storytelling expert for short-form video platforms. Your task is to rewrite stories into cinematic narration scripts that keep viewers hooked from start to finish.\n\nGenres handled:\n\nMystery: horror, suspense, crime, supernatural, eerie legends, investigations, unsolved cases\n\nDrama: family conflicts, workplace tensions, friendships, relationships, comedy, wholesome stories\n\nGenre classification:\n\nUse \"mystery\" for eerie, suspenseful, supernatural, or investigative stories\n\nUse \"drama\" for everyday life, relationships, workplace, family, or emotional stories\n\nScript rules:\n\nMust be 180–220 words exactly (non-negotiable)\n\nMust use only commas and periods as punctuation\n\nMust use simple, direct language, never poetic or abstract\n\nMust avoid first-person POV (\"I\", \"my\", \"we\")\n\nMust follow a storytelling narration tone, as if retelling an urban legend or dramatic event\n\nMust include sensory details that create clear mental images\n\nMust build a smooth pacing curve with tension and release\n\nMust contain subtle scene transition cues without breaking narration flow\n\nEvery sentence must move the story forward or hold attention\n\nHook rules:\n\nAlways open with one of the 7 compact hooks from the genre list in the user prompt\n\nHooks must set time, place, or mood with high specificity\n\nNo generic openers like \"Little did they know\" or \"If only they had known\"\n\nNo POV confessions — always told as a story for an audience\n\nTTS optimization rules:\n\nSentences must flow naturally for voice rhythm\n\nPauses created only with commas and periods\n\nNo complex words or tongue twisters\n\nMaintain consistent energy and engagement throughout\n\nFinal format:\nOutput ONLY valid JSON in the structure:\n{\n\"script\": \"Complete narration script with scene flow\",\n\"storyTitle\": \"Compelling title (max 50 characters)\",\n\"genre\": \"mystery or drama\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2120,
+        300
+      ],
+      "id": "e44e1492-f472-414c-bc41-067e3e825925",
+      "name": "Get narration script and story title"
+    },
+    {
+      "parameters": {
+        "bucketName": "nca-toolkit",
+        "fileKey": "story_id.txt"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        3240,
+        660
+      ],
+      "id": "c3d06cbd-ffcd-48a4-9117-e3e16fb4e1a8",
+      "name": "Download Id file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        3460,
+        660
+      ],
+      "id": "689fbc6b-eed1-41ce-9982-be4356bed496",
+      "name": "extract story id"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "nca-toolkit",
+        "fileKey": "story_id.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        3900,
+        660
+      ],
+      "id": "7fe854d2-0ecf-470b-b216-2e84b19d47d4",
+      "name": "Delete ID file",
+      "credentials": {
+        "s3": {
+          "id": "PeHi0zVyEziqPnmK",
+          "name": "S3 account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawText = $input.first().json.output;\n\nconst cleanedText = rawText.replace(/[\\s\\S]*?<\\/think>/gi, '').replace(\"json\",\"\").replaceAll(\"`\",\"\").trim();\n\nreturn JSON.parse(cleanedText);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2580,
+        420
+      ],
+      "id": "239a246b-8a61-487d-92f3-f4181a49c0ce",
+      "name": "Parse output JSON"
+    },
+    {
+      "parameters": {
+        "jsCode": "const story = $input.first().json.content.split('\\n').map(topic => topic.replaceAll(\"\\\"\",\"'\").trim()).join(\"\")\n\nreturn {formatedStory : story}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        540
+      ],
+      "id": "4a8b5667-1e59-4972-b137-ac026ae107ce",
+      "name": "Clean any special characters"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2120,
+        500
+      ],
+      "id": "fa32fdae-0015-492a-8955-0c4886e64cba",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NWChq5dUaX00D8C9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{ \n  \"responseContent\": \"yes\" \n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1280,
+        760
+      ],
+      "id": "06e2f8fc-3c5f-4b9a-af0b-1931b1c25d10",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        760
+      ],
+      "id": "8025f9aa-7169-45f8-a767-091dda2d5891",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NWChq5dUaX00D8C9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Evaluate if the submitted text contains an actual story (narrative of events), even if surrounded by other content like questions or context.\nIf it contains storytelling = return \"yes\"\nIf it contains no story at all = return \"no\"\nAlso return \"no\" if it contains sexual content, extreme violence/gore.\n\nCRITICAL: Return ONLY valid JSON with double quotes:\n{\"responseContent\": \"yes\"} or {\"responseContent\": \"no\"}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a content classifier specialized in identifying whether submitted text contains a viable story for video production.\nYOUR TASK:\nDetermine if the input contains an actual narrative story (first-pers, even if surrounded by other text.\n\nPASS (return \"yes\") IF:\nThe text contains or tells a narrative with events that happened or could happen\nSomeone is recounting an experience, situation, or series of events (even if brief)\nIt includes storytelling elements: characters, events, situations unfolding\nA story is present, even if mixed with questions, context, or commentary\nThe narrative portion can be extracted and adapted for video content\n\nFAIL (return \"no\") IF:\nOnly questions asking for advice or opinions (no story included)\nOnly responses or replies to other posts (no story included)\nOnly general discussion or comments (no narrative)\nOnly lists without narrative structure\nOnly meta-discussions about Reddit or platforms\nOnly opinions, rants, or observations without any story elements\nThread fragments that reference a story but don't contain one\n\nADDITIONAL DISQUALIFICATIONS (return \"no\"):\nSexual content: explicit acts, situations, innuendos, suggestive themes, adult content, intimate details beyond innocent affection\nExtreme violence/gore: mutilation, graphic injuries\n\nOUTPUT FORMAT:\nReturn ONLY this JSON object with double quotes:\n{\"responseContent\": \"yes\"} or {\"responseContent\": \"no\"}\nNo explanations. No additional text. Only the JSON response.\n\nStory: {{ $json.formatedStory.trim() }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        540
+      ],
+      "id": "e6284577-a855-46aa-9fbb-080b127e7870",
+      "name": "GroqConsole Api call",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dfb81fb6-4ffc-4841-9554-2e68f14962fc",
+              "name": "responseContent",
+              "value": "={{ $json.output }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1460,
+        480
+      ],
+      "id": "8ddf8b8d-2f66-4d3d-91e8-c1f66919a229",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge4": {
+      "main": [
+        [
+          {
+            "node": "Update story column to used before = \"yes\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check if both conditions are met (title + content)": {
+      "main": [
+        [
+          {
+            "node": "Get narration script and story title",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Check if the title is not a Suggesting that it is a sequel",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Append a row in formatted reddit stories sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "check if both conditions are met (title + content)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if the title is not a Suggesting that it is a sequel": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Format the given story": {
+      "main": [
+        [
+          {
+            "node": "Get first unused story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update story column to used before = \"yes\"": {
+      "main": [
+        [
+          {
+            "node": "Delete Id file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update used story column : used before = \"yes\"": {
+      "main": [
+        [
+          {
+            "node": "Delete ID file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append a row in formatted reddit stories sheet": {
+      "main": [
+        [
+          {
+            "node": "Download Id file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get first unused story": {
+      "main": [
+        [
+          {
+            "node": "Clean any special characters",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Get the story id",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check if the title is not a Suggesting that it is a sequel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the story id": {
+      "main": [
+        [
+          {
+            "node": "Convert into txt file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert into txt file": {
+      "main": [
+        [
+          {
+            "node": "Upload id file to MinIO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Id file": {
+      "main": [
+        [
+          {
+            "node": "Get first unused story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get narration script and story title": {
+      "main": [
+        [
+          {
+            "node": "Parse output JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Id file": {
+      "main": [
+        [
+          {
+            "node": "extract story id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract story id": {
+      "main": [
+        [
+          {
+            "node": "Update used story column : used before = \"yes\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse output JSON": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean any special characters": {
+      "main": [
+        [
+          {
+            "node": "GroqConsole Api call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Get narration script and story title",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "GroqConsole Api call",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "GroqConsole Api call",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GroqConsole Api call": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3a3f99e1-c00f-4720-b60e-18170ea490b0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa02f91765655e9392e3b75ce8731df7653a09e5799bd530306e1a97fbd5936c"
+  },
+  "id": "7yoSMwMKZwJXMjCU",
+  "tags": []
+}
