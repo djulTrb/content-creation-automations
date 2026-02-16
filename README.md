@@ -15,7 +15,7 @@ After spending countless hours hitting paywalls on automation tools, I built the
 
 ---
 
-## 📹 Workflow #1: Story-To-Video Pipeline
+## Workflow #1: Story-To-Video Pipeline
 
 Transform Reddit stories into polished, ready-to-upload videos automatically.
 
@@ -113,5 +113,6 @@ If these workflows helped you start or grow your channel, tips and contributions
 - **Transcription**: Groq Whisper API
 - **Storage**: Google Sheets
 - **Delivery**: Telegram Bot
+
  
-![](https://komarev.com/ghpvc/?djulTrb)
+![](https://komarev.com/ghpvc/?username=djulTrb&color=dc143c)
