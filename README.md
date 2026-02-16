@@ -113,3 +113,5 @@ If these workflows helped you start or grow your channel, tips and contributions
 - **Transcription**: Groq Whisper API
 - **Storage**: Google Sheets
 - **Delivery**: Telegram Bot
+ 
+![](https://komarev.com/ghpvc/?djulTrb)
